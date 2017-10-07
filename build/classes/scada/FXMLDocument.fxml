@@ -18,9 +18,9 @@
                         <Button fx:id="loaderButton" layoutX="1207.0" layoutY="466.0" mnemonicParsing="false" text="Load GH's" />
                         <TableView fx:id="displayTable" layoutX="14.0" layoutY="14.0" prefHeight="794.0" prefWidth="1067.0" />
                         <Button fx:id="testButton" layoutX="1207.0" layoutY="411.0" mnemonicParsing="false" onAction="#handleTestButton" text="Testbutt" />
-                        <TextField fx:id="idTextField" layoutX="1095.0" layoutY="93.0" promptText="Enter Id..." />
+                        <TextField fx:id="idTextField" layoutX="1134.0" layoutY="93.0" prefHeight="31.0" prefWidth="148.0" promptText="Enter Id..." />
                         <ComboBox fx:id="typeDropdown" layoutX="1132.0" layoutY="135.0" prefWidth="150.0" />
-                        <Button fx:id="plantButton" layoutX="1219.0" layoutY="176.0" mnemonicParsing="false" onAction="#handlePlantButton" text="Button" />
+                        <Button fx:id="plantButton" layoutX="1228.0" layoutY="174.0" mnemonicParsing="false" onAction="#handlePlantButton" text="Plant" />
                      </children></AnchorPane>
             </content>
           </Tab>
