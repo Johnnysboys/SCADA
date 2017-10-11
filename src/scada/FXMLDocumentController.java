@@ -37,80 +37,57 @@ public class FXMLDocumentController implements Initializable {
 
     private Scada_Controller scadCon;
 
-    private ObservableList<Greenhouse> data;
+    private ObservableList<IDeployable> data;
 
     @FXML
     private Button loaderButton;
     @FXML
-    private TableView<Greenhouse> displayTable;
-    @FXML
-    private Button testButton;
-    @FXML
-    private ComboBox<?> comboTest;
-    @FXML
+    private TableView<IDeployable> displayTable;
     private TextField idTextField;
     @FXML
     private ComboBox<Article> typeDropdown;
     @FXML
     private Button plantButton;
-
     @FXML
-    private void handleTestButton(ActionEvent event) {
-        scadCon.updateAll();
-
-        this.initiateGreenOverview();
-    }
+    private Button startButton;
+    @FXML
+    private ComboBox<Integer> numberDropDown;
+    @FXML
+    private Button setpointButton;
+    @FXML
+    private TextField setpointField;
+    @FXML
+    private Button harvestButton;
+    @FXML
+    private Button discardButton;
+    @FXML
+    private ComboBox<?> comboTest;
 
     @FXML
     private void handlePlantButton(ActionEvent event) {
-        String ree = idTextField.getText();
-        try {
-            int id = Integer.parseInt(idTextField.getText());
-            Article art = typeDropdown.getSelectionModel().getSelectedItem();
-            System.out.println(art.toString());
-        } catch (NumberFormatException e) {
-            //e.printStackTrace();
-            System.out.println("Enter an integer for ID.");
-
-        }
+        int id = numberDropDown.getSelectionModel().getSelectedItem();
+        Article art = typeDropdown.getSelectionModel().getSelectedItem();
+        scadCon.plant(id-1, art);
+        System.out.println("Planting");
 
     }
 
-    public void setDropdown() {
-        Article Salad = new Article(1, "Salad", 23, 500);
-        Article Cress = new Article(2, "Cress", 20, 500);
-        Article Potato = new Article(3, "Potato", 17, 400);
-        typeDropdown.getItems().add(Salad);
-        typeDropdown.getItems().add(Cress);
-        typeDropdown.getItems().add(Potato);
-        typeDropdown.getSelectionModel().select(0);
+    @FXML
+    private void handleHarvestButton(ActionEvent event) {
+        int id = numberDropDown.getSelectionModel().getSelectedItem();
+        scadCon.harvest(id - 1);
+        System.out.println("Harvesting");
+    }
+
+    @FXML
+    private void handleDiscardButton(ActionEvent event) {
+        int id = numberDropDown.getSelectionModel().getSelectedItem();
+        scadCon.discard(id - 1);
+        System.out.println("Discarding");
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        this.setDropdown();
-
-        TableColumn numberCol = new TableColumn("Greenhouse Number");
-        numberCol.setCellValueFactory(new PropertyValueFactory<Greenhouse, String>("ghNumber"));
-        numberCol.setMinWidth(200);
-
-        TableColumn tempCol = new TableColumn("Temperature");
-        tempCol.setCellValueFactory(new PropertyValueFactory<Greenhouse, String>("ghTemp"));
-        tempCol.setMinWidth(200);
-
-        TableColumn waterCol = new TableColumn("Water Level");
-        waterCol.setCellValueFactory(new PropertyValueFactory<Greenhouse, String>("ghWater"));
-        waterCol.setMinWidth(200);
-
-        TableColumn setTempCol = this.createTempCol();
-        setTempCol.setMinWidth(200);
-
-        TableColumn idleCol = new TableColumn("Status");
-        idleCol.setCellValueFactory(new PropertyValueFactory<Greenhouse, String>("idle"));
-        idleCol.setMinWidth(200);
-
-        displayTable.getColumns().addAll(numberCol, tempCol, setTempCol, waterCol, idleCol);
-        displayTable.setEditable(true);
 
         loaderButton.setOnAction(
                 new EventHandler<ActionEvent>() {
@@ -124,7 +101,7 @@ public class FXMLDocumentController implements Initializable {
                 TextField txtF = new TextField("Enter Port-number");
                 txtF.setMaxWidth(200);
                 dialogVbox.getChildren().add(txtF);
-                TextField txtIP = new TextField("Enter IP-Address");
+                TextField txtIP = new TextField("192.168.0.10");
                 txtIP.setMaxWidth(200);
                 dialogVbox.getChildren().add(txtIP);
 
@@ -139,13 +116,9 @@ public class FXMLDocumentController implements Initializable {
                         try {
                             int iPort = Integer.parseInt(port);
 
-                            if (ip.equals("Enter IP-Address")) {
-                                scadCon.addGreenPort(iPort);
-                                lbl.setText("Port " + iPort + " added...");
-                            } else {
-                                scadCon.addGreenPortIp(iPort, ip);
-                                lbl.setText("Port " + iPort + " added at " + ip);
-                            }
+                            scadCon.addPortIp(iPort, ip);
+                            lbl.setText("Port " + iPort + " added at " + ip);
+                            startButton.setVisible(true);
 
                         } catch (NumberFormatException e) {
                             txtF.setText("Integers Only");
@@ -164,33 +137,23 @@ public class FXMLDocumentController implements Initializable {
         });
     }
 
-    private TableColumn<Greenhouse, String> createTempCol() {
-        TableColumn setPointTempCol = new TableColumn("Temperature Setpoint");
-        setPointTempCol.setCellValueFactory(new PropertyValueFactory<Greenhouse, String>("ghSetTemp"));
-        setPointTempCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        //Sætter OnCommit EventHandler, der tager den indtastede værdi og bruger den som ny SetPoint for det gældende Greenhouse
-        setPointTempCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Greenhouse, String>>() {
-            @Override
-            public void handle(TableColumn.CellEditEvent<Greenhouse, String> t) {
+    /**
+     * Initiates the tableview with columns corresponding to the type of the
+     * IDeployable implementing class.
+     */
+    public void initiateOverview() {
 
-                try {
-                    int newPoint = Integer.parseInt(t.getNewValue());
-                    Greenhouse gh = t.getRowValue();
-                    String changedGH = gh.getGhNumber();
+        ArrayList<String> columnNames = scadCon.getDeployList().get(0).getColumnNames();
+        ArrayList<String> columnAttri = scadCon.getDeployList().get(0).getColumnAttributes();
 
-                    scadCon.changeSetPoint(changedGH, newPoint);
+        for (int i = 0; i < columnNames.size(); i++) {
+            TableColumn numberCol = new TableColumn(columnNames.get(i));
+            numberCol.setCellValueFactory(new PropertyValueFactory<IDeployable, String>(columnAttri.get(i)));
+            numberCol.setMinWidth(200);
+            displayTable.getColumns().add(numberCol);
+        }
 
-                } catch (NumberFormatException e) {
-                    System.out.println("New value is not an integer.");
-                }
-
-            }
-        });
-        return setPointTempCol;
-    }
-
-    public void initiateGreenOverview() {
-        data = FXCollections.observableArrayList(scadCon.getGreenList());
+        data = FXCollections.observableArrayList(scadCon.getDeployList());
         displayTable.setItems(data);
     }
 
@@ -198,10 +161,22 @@ public class FXMLDocumentController implements Initializable {
         this.scadCon = scad;
     }
 
-    public void updateTable(ArrayList<Greenhouse> list) {
+    public void updateTable(ArrayList<IDeployable> list) {
         data = FXCollections.observableArrayList(list);
         displayTable.setItems(data);
         displayTable.refresh();
+    }
+
+    @FXML
+    private void handleStartButton(ActionEvent event) {
+        int size = scadCon.getDeployList().size();
+        numberDropDown.getItems().clear();
+        for (int i = 0; i < size; i++) {
+            numberDropDown.getItems().add(i + 1);
+        }
+        typeDropdown.getItems().clear();
+        typeDropdown.getItems().addAll(scadCon.getDeployList().get(0).getArticles());
+        this.initiateOverview();
     }
 
 }

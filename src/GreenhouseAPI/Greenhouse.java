@@ -6,6 +6,7 @@
 package GreenhouseAPI;
 
 import PLCCommunication.*;
+import java.util.ArrayList;
 import java.util.BitSet;
 import scada.Article;
 import scada.IDeployable;
@@ -37,6 +38,132 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
 
     }
 
+    public String getIdle() {
+        return idle;
+    }
+
+    public void setIdle(String idle) {
+        this.idle = idle;
+    }
+
+    @Override
+    public ArrayList<String> getColumnNames() {
+        ArrayList<String> columnNameArray = new ArrayList<String>();
+        columnNameArray.add("Greenhouse Number");
+        columnNameArray.add("Temperature");
+        columnNameArray.add("Temperature Setpoint");
+        columnNameArray.add("Water Level");
+        columnNameArray.add("Status");
+
+        return columnNameArray;
+    }
+
+    @Override
+    public ArrayList<String> getColumnAttributes() {
+        ArrayList<String> columnAttributeArray = new ArrayList<String>();
+        columnAttributeArray.add("ghNumber");
+        columnAttributeArray.add("ghTemp");
+        columnAttributeArray.add("ghSetTemp");
+        columnAttributeArray.add("ghWater");
+        columnAttributeArray.add("idle");
+
+        return columnAttributeArray;
+    }
+
+    @Override
+    public ArrayList<Article> getArticles() {
+        Article Salad = new Article(1, "Salad", 23, 500);
+        Article Cress = new Article(2, "Cress", 20, 500);
+        Article Potato = new Article(3, "Potato", 17, 400);
+        ArrayList<Article> articleArray = new ArrayList<Article>();
+        articleArray.add(Salad);
+        articleArray.add(Cress);
+        articleArray.add(Potato);
+        return articleArray;
+    }
+
+    @Override
+    public void setDeployNumber(int i) {
+        this.ghNumber = Integer.toString(i);
+    }
+
+    public PLCConnection getConn() {
+        return conn;
+    }
+
+    public void setConn(PLCConnection conn) {
+        this.conn = conn;
+    }
+
+    public Message getMess() {
+        return mess;
+    }
+
+    public void setMess(Message mess) {
+        this.mess = mess;
+    }
+    @Override
+    public Article getCurrentArt() {
+        return currentArt;
+    }
+
+    public void setCurrentArt(Article currentArt) {
+        this.currentArt = currentArt;
+    }   
+
+    public String getGhNumber() {
+        return ghNumber;
+    }
+
+    public void setGhNumber(String ghNumber) {
+        this.ghNumber = ghNumber;
+    }
+
+    public String getGhTemp() {
+        return ghTemp;
+    }
+
+    public void setGhTemp(String ghTemp) {
+        this.ghTemp = ghTemp;
+    }
+
+    public String getGhWater() {
+        return ghWater;
+    }
+
+    public void setGhWater(String ghWater) {
+        this.ghWater = ghWater;
+    }
+
+    public String getGhSetTemp() {
+        return ghSetTemp;
+    }
+
+    public void setGhSetTemp(String ghSetTemp) {
+        this.ghSetTemp = ghSetTemp;
+    }
+
+    @Override
+    public void update() {
+        double temp = this.ReadTemp1();
+        double wLevel = this.ReadWaterLevel();
+
+        // If the temperature is higher than the SetPoint, the fan is started as to bring down the temperature. If the temperature is lower than the SetPoint the heater automatically starts. 
+        if (temp > Double.parseDouble(this.getGhSetTemp()) + 273) {
+            this.SetFanSpeed(1);
+        } else {
+            this.SetFanSpeed(0);
+        }
+        if (wLevel < 400) {      // Set to needed waterlevel - Around 650 is base.
+            this.AddWater(5); //Amount of seconds to pump water.
+        }
+    }
+    
+    @Override
+    public boolean getStats(){
+        return inUse;
+    }
+
     /**
      * Create greenhouse API
      *
@@ -52,6 +179,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      * @param kelvin : temperature in kelvin (273 > T > 303)
      * @return true if processed
      */
+    @Override
     public boolean SetTemperature(int kelvin) {
         mess = new Message(TEMP_SETPOINT);
         if (kelvin > 273 && kelvin < 303) // 0 - 30 grader celcius
@@ -403,71 +531,4 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
             idle = "In Use";
         }
     }
-
-    public PLCConnection getConn() {
-        return conn;
-    }
-
-    public void setConn(PLCConnection conn) {
-        this.conn = conn;
-    }
-
-    public Message getMess() {
-        return mess;
-    }
-
-    public void setMess(Message mess) {
-        this.mess = mess;
-    }
-
-    public String getGhNumber() {
-        return ghNumber;
-    }
-
-    public void setGhNumber(String ghNumber) {
-        this.ghNumber = ghNumber;
-    }
-
-    public String getGhTemp() {
-        return ghTemp;
-    }
-
-    public void setGhTemp(String ghTemp) {
-        this.ghTemp = ghTemp;
-    }
-
-    public String getGhWater() {
-        return ghWater;
-    }
-
-    public void setGhWater(String ghWater) {
-        this.ghWater = ghWater;
-    }
-
-    public String getGhSetTemp() {
-        return ghSetTemp;
-    }
-
-    public void setGhSetTemp(String ghSetTemp) {
-        this.ghSetTemp = ghSetTemp;
-    }
-
-    @Override
-    public void update() {
-        double temp = this.ReadTemp1();
-        double wLevel = this.ReadWaterLevel();
-
-        // If the temperature is higher than the SetPoint, the fan is started as to bring down the temperature. If the temperature is lower than the SetPoint the heater automatically starts. 
-        if (temp > Double.parseDouble(this.getGhSetTemp()) + 273) {
-            this.SetFanSpeed(1);
-        } else {
-            this.SetFanSpeed(0);
-        }
-
-        // Set to needed waterlevel
-        if (wLevel < 400) {
-            this.AddWater(5);
-        }
-    }
-
 }

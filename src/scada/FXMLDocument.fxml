@@ -15,12 +15,16 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Button fx:id="loaderButton" layoutX="1207.0" layoutY="466.0" mnemonicParsing="false" text="Load GH's" />
+                        <Button fx:id="loaderButton" layoutX="1207.0" layoutY="466.0" mnemonicParsing="false" text="Connect" />
                         <TableView fx:id="displayTable" layoutX="14.0" layoutY="14.0" prefHeight="794.0" prefWidth="1067.0" />
-                        <Button fx:id="testButton" layoutX="1207.0" layoutY="411.0" mnemonicParsing="false" onAction="#handleTestButton" text="Testbutt" />
-                        <TextField fx:id="idTextField" layoutX="1134.0" layoutY="93.0" prefHeight="31.0" prefWidth="148.0" promptText="Enter Id..." />
-                        <ComboBox fx:id="typeDropdown" layoutX="1132.0" layoutY="135.0" prefWidth="150.0" />
-                        <Button fx:id="plantButton" layoutX="1228.0" layoutY="174.0" mnemonicParsing="false" onAction="#handlePlantButton" text="Plant" />
+                        <Button fx:id="startButton" layoutX="1207.0" layoutY="411.0" mnemonicParsing="false" onAction="#handleStartButton" text="Start" visible="false" />
+                        <ComboBox fx:id="typeDropdown" layoutX="1169.0" layoutY="248.0" prefHeight="25.0" prefWidth="103.0" promptText="Type" />
+                        <Button fx:id="plantButton" layoutX="1227.0" layoutY="212.0" mnemonicParsing="false" onAction="#handlePlantButton" text="Plant" />
+                        <ComboBox fx:id="numberDropDown" layoutX="1169.0" layoutY="285.0" prefHeight="25.0" prefWidth="103.0" promptText="Number" />
+                        <Button fx:id="harvestButton" layoutX="1107.0" layoutY="212.0" mnemonicParsing="false" onAction="#handleHarvestButton" text="Harvest" />
+                        <Button fx:id="setpointButton" layoutX="1212.0" layoutY="319.0" mnemonicParsing="false" text="Setpoint" />
+                        <TextField fx:id="setpointField" layoutX="1122.0" layoutY="351.0" promptText="Enter Setpoint... // NOT IMPLEMENTED" />
+                        <Button fx:id="discardButton" layoutX="1169.0" layoutY="212.0" mnemonicParsing="false" onAction="#handleDiscardButton" text="Discard" />
                      </children></AnchorPane>
             </content>
           </Tab>

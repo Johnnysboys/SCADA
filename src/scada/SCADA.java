@@ -40,7 +40,6 @@ public class SCADA extends Application {
             public void run() {
                 System.out.println("Updated at: " + new Date());
                 scadCon.updateAll();
-                controller.initiateGreenOverview();
             }
         }, 0, 10, TimeUnit.SECONDS);
 
