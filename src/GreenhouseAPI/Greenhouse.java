@@ -23,13 +23,14 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
 
     private String ghNumber;
     private String ghTemp;
-    private String ghWater;
+    private String ghWater = "700";
     private String ghSetTemp = "0";
     private String idle = "Idle";
 
     private boolean inUse = false;
 
     private Article currentArt;
+    private String orderNo;
 
     /**
      * Create greenhouse API
@@ -44,6 +45,27 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
 
     public void setIdle(String idle) {
         this.idle = idle;
+    }
+
+    @Override
+    public void deployArticle(Article art, String orderNo) {
+        this.currentArt = art;
+        this.orderNo = orderNo;
+        this.SetTemperature(this.currentArt.getPrefTemp()+273);
+        this.ghWater = Integer.toString(this.currentArt.getPrefWat());
+        
+        this.flipInUse();
+
+    }
+    
+    @Override
+    public String emptyArticle(){
+        String discardedOrder = this.orderNo;
+        this.orderNo = null;
+        this.currentArt = null;
+        this.flipInUse();
+        
+        return discardedOrder;
     }
 
     @Override
@@ -102,6 +124,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
     public void setMess(Message mess) {
         this.mess = mess;
     }
+
     @Override
     public Article getCurrentArt() {
         return currentArt;
@@ -109,7 +132,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
 
     public void setCurrentArt(Article currentArt) {
         this.currentArt = currentArt;
-    }   
+    }
 
     public String getGhNumber() {
         return ghNumber;
@@ -154,13 +177,30 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
         } else {
             this.SetFanSpeed(0);
         }
-        if (wLevel < 400) {      // Set to needed waterlevel - Around 650 is base.
+        if (wLevel < Double.parseDouble(this.ghWater)) {      // Set to needed waterlevel - Around 650 is base.
             this.AddWater(5); //Amount of seconds to pump water.
         }
     }
     
+        /**
+     * Flips the boolean that keeps track of whether or not the greenhouse is
+     * occupied by a production.
+     */
+    public void flipInUse() {
+        if (inUse) {
+            inUse = false;
+            idle = "Idle";
+            System.out.println("BOOOOOOOOOOP BAD IDLESTATUS");
+        } else {
+            inUse = true;
+            idle = currentArt.getName();
+            System.out.println("WOOOOOOOP NEW IDLESTATUS");
+        }
+    }
+    
+
     @Override
-    public boolean getStats(){
+    public boolean getStats() {
         return inUse;
     }
 
@@ -187,6 +227,8 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
             System.out.println("Set temperatur setpoint to " + kelvin);
             mess.setData(kelvin - 273);
             conn.addMessage(mess);
+            System.out.println("WOOOOOOOOOOOOOOOOOOOOOH");
+            this.setGhSetTemp(Integer.toString(kelvin-273));
             if (conn.send()) {
                 return true;
             } else {
@@ -518,17 +560,5 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
 
     }
 
-    /**
-     * Flips the boolean that keeps track of whether or not the greenhouse is
-     * occupied by a production.
-     */
-    public void flipInUse() {
-        if (inUse = true) {
-            inUse = false;
-            idle = "Idle";
-        } else if (inUse = false) {
-            inUse = true;
-            idle = "In Use";
-        }
-    }
+
 }

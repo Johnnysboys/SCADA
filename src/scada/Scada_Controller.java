@@ -9,10 +9,6 @@ import GreenhouseAPI.Greenhouse;
 import PLCCommunication.PLCConnection;
 import PLCCommunication.UDPConnection;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -22,7 +18,6 @@ public class Scada_Controller {
 
     private FXMLDocumentController guiCon;
     private ArrayList<IDeployable> deployArray = new ArrayList<IDeployable>();
-    private ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
 
     /**
      * SCADA_Controller constructor.
@@ -50,16 +45,63 @@ public class Scada_Controller {
         }
         guiCon.updateTable(deployArray);
     }
-    
-    public void harvest(int id){
+
+    /**
+     * WORK IN PROGRESS
+     *
+     * @param id - ID of edited deployable.
+     */
+    public void harvest(int id) {
+        IDeployable deploy = this.deployArray.get(id);
+        if (deploy.getStats()) {
+            Article art = deploy.getCurrentArt();
+
+            deploy.emptyArticle();
+
+            // CONTACT MES, 1 x art has been harvested belonging to order ?
+        } else {
+
+            System.out.println("Tried harvesting an idle deployable.");
+
+        }
     }
-    
-    public void discard(int id){
-        
+
+    /**
+     * WORK IN PROGRESS
+     *
+     * @param id - ID of edited deployable.
+     */
+    public void discard(int id) {
+        IDeployable deploy = this.deployArray.get(id);
+        if (deploy.getStats()) {
+
+            Article art = deploy.getCurrentArt();
+
+            String orderNo = deploy.emptyArticle();
+
+            // CONTACT MES 1 x art has been discarded, belonging to order ? 
+        } else {
+            System.out.println("Tried discarding an idle deployable.");
+        }
+
     }
-    
-    public void plant(int id, Article art){
-        
+
+    /**
+     * WORK IN PROGRESS
+     *
+     * @param id - ID of edited deployable.
+     * @param art - The article to add to the deployable.
+     * @param orderNo - The order to associate with the article in production.
+     */
+    public void plant(int id, Article art, String orderNo) {
+        IDeployable deploy = this.deployArray.get(id);
+        if (!deploy.getStats()) {
+            deploy.deployArticle(art, orderNo);
+
+        } else {
+            System.out.println("Tried planting a non-idle deployable.");
+        }
+
     }
 
     /**
