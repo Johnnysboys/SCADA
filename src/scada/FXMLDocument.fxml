@@ -17,7 +17,7 @@
                      <children>
                         <Button fx:id="loaderButton" layoutX="1207.0" layoutY="466.0" mnemonicParsing="false" text="Connect" />
                         <TableView fx:id="displayTable" layoutX="14.0" layoutY="14.0" prefHeight="794.0" prefWidth="1067.0" />
-                        <Button fx:id="startButton" layoutX="1207.0" layoutY="411.0" mnemonicParsing="false" onAction="#handleStartButton" text="Start" visible="false" />
+                        <Button fx:id="startButton" disable="true" layoutX="1207.0" layoutY="411.0" mnemonicParsing="false" onAction="#handleStartButton" text="Start" />
                         <ComboBox fx:id="typeDropdown" layoutX="1169.0" layoutY="248.0" prefHeight="25.0" prefWidth="103.0" promptText="Type" />
                         <Button fx:id="plantButton" layoutX="1227.0" layoutY="212.0" mnemonicParsing="false" onAction="#handlePlantButton" text="Plant" />
                         <ComboBox fx:id="numberDropDown" layoutX="1169.0" layoutY="285.0" prefHeight="25.0" prefWidth="103.0" promptText="Number" />
@@ -30,10 +30,7 @@
           </Tab>
           <Tab text="Options">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <ComboBox fx:id="comboTest" layoutX="128.0" layoutY="139.0" prefWidth="150.0" promptText="Category" />
-                     </children></AnchorPane>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
             </content>
           </Tab>
         </tabs>

@@ -56,6 +56,18 @@ public interface IDeployable {
      * @return 
      */
     public Article getCurrentArt();
+    /**
+     * Empties the deployable, and sets the status to idle. 
+     * @return 
+     */
+    public String emptyArticle();
+    
+    /**
+     * Deploys a certain article in the given deployable with a given order number. 
+     * @param art - The article to deploy.
+     * @param orderNo - The order number to associate with the deployed article. 
+     */
+    public void deployArticle(Article art, String orderNo);
 
     /**
      * Returns an ArrayList of strings containing the displayed column names for

@@ -24,7 +24,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -36,6 +35,7 @@ import javafx.stage.Stage;
 public class FXMLDocumentController implements Initializable {
 
     private Scada_Controller scadCon;
+    private String currentOrderNo = "REEEORDER";
 
     private ObservableList<IDeployable> data;
 
@@ -43,7 +43,6 @@ public class FXMLDocumentController implements Initializable {
     private Button loaderButton;
     @FXML
     private TableView<IDeployable> displayTable;
-    private TextField idTextField;
     @FXML
     private ComboBox<Article> typeDropdown;
     @FXML
@@ -60,14 +59,12 @@ public class FXMLDocumentController implements Initializable {
     private Button harvestButton;
     @FXML
     private Button discardButton;
-    @FXML
-    private ComboBox<?> comboTest;
 
     @FXML
     private void handlePlantButton(ActionEvent event) {
         int id = numberDropDown.getSelectionModel().getSelectedItem();
         Article art = typeDropdown.getSelectionModel().getSelectedItem();
-        scadCon.plant(id-1, art);
+        scadCon.plant(id - 1, art, currentOrderNo);
         System.out.println("Planting");
 
     }
@@ -84,6 +81,10 @@ public class FXMLDocumentController implements Initializable {
         int id = numberDropDown.getSelectionModel().getSelectedItem();
         scadCon.discard(id - 1);
         System.out.println("Discarding");
+    }
+
+    public void setOrderNo(String order) {
+        this.currentOrderNo = order;
     }
 
     @Override
@@ -118,7 +119,12 @@ public class FXMLDocumentController implements Initializable {
 
                             scadCon.addPortIp(iPort, ip);
                             lbl.setText("Port " + iPort + " added at " + ip);
-                            startButton.setVisible(true);
+                            startButton.setDisable(false);
+                            int size = scadCon.getDeployList().size();
+                            numberDropDown.getItems().clear();
+                            for (int i = 0; i < size; i++) {
+                                numberDropDown.getItems().add(i + 1);
+                            }
 
                         } catch (NumberFormatException e) {
                             txtF.setText("Integers Only");
@@ -177,6 +183,7 @@ public class FXMLDocumentController implements Initializable {
         typeDropdown.getItems().clear();
         typeDropdown.getItems().addAll(scadCon.getDeployList().get(0).getArticles());
         this.initiateOverview();
+        startButton.setVisible(false);
     }
 
 }
