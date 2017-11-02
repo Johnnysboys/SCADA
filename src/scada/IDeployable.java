@@ -28,7 +28,7 @@ public interface IDeployable {
 
     /**
      * Returns the idle status of the deployable. True is occupied and false is idle. 
-     * @return 
+     * @return - A boolean value reflecting the occupation-status of the deployable.
      */
     public boolean getStats();
     
@@ -56,6 +56,7 @@ public interface IDeployable {
      * @return 
      */
     public Article getCurrentArt();
+    
     /**
      * Empties the deployable, and sets the status to idle. 
      * @return 

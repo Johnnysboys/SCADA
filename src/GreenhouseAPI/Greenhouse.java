@@ -51,20 +51,20 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
     public void deployArticle(Article art, String orderNo) {
         this.currentArt = art;
         this.orderNo = orderNo;
-        this.SetTemperature(this.currentArt.getPrefTemp()+273);
+        this.SetTemperature(this.currentArt.getPrefTemp() + 273);
         this.ghWater = Integer.toString(this.currentArt.getPrefWat());
-        
+
         this.flipInUse();
 
     }
-    
+
     @Override
-    public String emptyArticle(){
+    public String emptyArticle() {
         String discardedOrder = this.orderNo;
         this.orderNo = null;
         this.currentArt = null;
         this.flipInUse();
-        
+
         return discardedOrder;
     }
 
@@ -181,8 +181,8 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
             this.AddWater(5); //Amount of seconds to pump water.
         }
     }
-    
-        /**
+
+    /**
      * Flips the boolean that keeps track of whether or not the greenhouse is
      * occupied by a production.
      */
@@ -190,14 +190,11 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
         if (inUse) {
             inUse = false;
             idle = "Idle";
-            System.out.println("BOOOOOOOOOOP BAD IDLESTATUS");
         } else {
             inUse = true;
             idle = currentArt.getName();
-            System.out.println("WOOOOOOOP NEW IDLESTATUS");
         }
     }
-    
 
     @Override
     public boolean getStats() {
@@ -228,7 +225,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
             mess.setData(kelvin - 273);
             conn.addMessage(mess);
             System.out.println("WOOOOOOOOOOOOOOOOOOOOOH");
-            this.setGhSetTemp(Integer.toString(kelvin-273));
+            this.setGhSetTemp(Integer.toString(kelvin - 273));
             if (conn.send()) {
                 return true;
             } else {
@@ -559,6 +556,5 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
         return false;
 
     }
-
 
 }

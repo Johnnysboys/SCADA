@@ -22,15 +22,29 @@
                         <Button fx:id="plantButton" layoutX="1227.0" layoutY="212.0" mnemonicParsing="false" onAction="#handlePlantButton" text="Plant" />
                         <ComboBox fx:id="numberDropDown" layoutX="1169.0" layoutY="285.0" prefHeight="25.0" prefWidth="103.0" promptText="Number" />
                         <Button fx:id="harvestButton" layoutX="1107.0" layoutY="212.0" mnemonicParsing="false" onAction="#handleHarvestButton" text="Harvest" />
-                        <Button fx:id="setpointButton" layoutX="1212.0" layoutY="319.0" mnemonicParsing="false" text="Setpoint" />
-                        <TextField fx:id="setpointField" layoutX="1122.0" layoutY="351.0" promptText="Enter Setpoint... // NOT IMPLEMENTED" />
                         <Button fx:id="discardButton" layoutX="1169.0" layoutY="212.0" mnemonicParsing="false" onAction="#handleDiscardButton" text="Discard" />
                      </children></AnchorPane>
             </content>
           </Tab>
           <Tab text="Options">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Pane fx:id="rmiLogonPane" layoutX="1006.0" layoutY="14.0" prefHeight="61.0" prefWidth="296.0" style="-fx-border-color: black;">
+                           <children>
+                              <TextField fx:id="serverField" layoutX="14.0" layoutY="14.0" promptText="Server ip..." />
+                              <Button fx:id="mesConnectButton" layoutX="176.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleServerButton" text="Connect to MES" />
+                           </children>
+                        </Pane>
+                        <TableView fx:id="orderView" layoutX="14.0" layoutY="14.0" onMousePressed="#handleRowSelect" prefHeight="281.0" prefWidth="609.0" />
+                        <Label layoutX="630.0" layoutY="22.0" text="Active Order:" />
+                        <Label fx:id="orderLabel" layoutX="705.0" layoutY="22.0" prefHeight="17.0" prefWidth="53.0" text="0.." />
+                        <Pane layoutX="887.0" layoutY="574.0" prefHeight="237.0" prefWidth="415.0" style="-fx-border-color: black;">
+                           <children>
+                              <ListView fx:id="harvestDelayed" layoutX="3.0" layoutY="19.0" prefHeight="200.0" prefWidth="200.0" />
+                              <ListView fx:id="discardDelayed" layoutX="211.0" layoutY="19.0" prefHeight="200.0" prefWidth="200.0" />
+                           </children></Pane>
+                     </children></AnchorPane>
             </content>
           </Tab>
         </tabs>
