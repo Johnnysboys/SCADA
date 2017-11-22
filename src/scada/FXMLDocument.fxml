@@ -16,13 +16,13 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <Button fx:id="loaderButton" layoutX="1207.0" layoutY="466.0" mnemonicParsing="false" text="Connect" />
-                        <TableView fx:id="displayTable" layoutX="14.0" layoutY="14.0" prefHeight="794.0" prefWidth="1067.0" />
+                        <TableView fx:id="displayTable" layoutX="14.0" layoutY="14.0" onMouseClicked="#handleDeploySelect" prefHeight="794.0" prefWidth="1067.0" />
                         <Button fx:id="startButton" disable="true" layoutX="1207.0" layoutY="411.0" mnemonicParsing="false" onAction="#handleStartButton" text="Start" />
-                        <ComboBox fx:id="typeDropdown" layoutX="1169.0" layoutY="248.0" prefHeight="25.0" prefWidth="103.0" promptText="Type" />
                         <Button fx:id="plantButton" layoutX="1227.0" layoutY="212.0" mnemonicParsing="false" onAction="#handlePlantButton" text="Plant" />
-                        <ComboBox fx:id="numberDropDown" layoutX="1169.0" layoutY="285.0" prefHeight="25.0" prefWidth="103.0" promptText="Number" />
+                        <ComboBox fx:id="numberDropDown" layoutX="1169.0" layoutY="179.0" prefHeight="25.0" prefWidth="103.0" promptText="Number" />
                         <Button fx:id="harvestButton" layoutX="1107.0" layoutY="212.0" mnemonicParsing="false" onAction="#handleHarvestButton" text="Harvest" />
                         <Button fx:id="discardButton" layoutX="1169.0" layoutY="212.0" mnemonicParsing="false" onAction="#handleDiscardButton" text="Discard" />
+                        <Label fx:id="typeLabel" layoutX="1173.0" layoutY="245.0" text="No order selected" />
                      </children></AnchorPane>
             </content>
           </Tab>
@@ -30,19 +30,25 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Pane fx:id="rmiLogonPane" layoutX="1006.0" layoutY="14.0" prefHeight="61.0" prefWidth="296.0" style="-fx-border-color: black;">
+                        <Pane fx:id="rmiLogonPane" layoutX="1006.0" layoutY="14.0" prefHeight="106.0" prefWidth="296.0" style="-fx-border-color: black;">
                            <children>
                               <TextField fx:id="serverField" layoutX="14.0" layoutY="14.0" promptText="Server ip..." />
-                              <Button fx:id="mesConnectButton" layoutX="176.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleServerButton" text="Connect to MES" />
+                              <Button fx:id="mesConnectButton" layoutX="176.0" layoutY="14.0" mnemonicParsing="false" text="Connect to MES" />
+                              <Label fx:id="errorLabel" layoutX="14.0" layoutY="53.0" />
                            </children>
                         </Pane>
                         <TableView fx:id="orderView" layoutX="14.0" layoutY="14.0" onMousePressed="#handleRowSelect" prefHeight="281.0" prefWidth="609.0" />
                         <Label layoutX="630.0" layoutY="22.0" text="Active Order:" />
                         <Label fx:id="orderLabel" layoutX="705.0" layoutY="22.0" prefHeight="17.0" prefWidth="53.0" text="0.." />
-                        <Pane layoutX="887.0" layoutY="574.0" prefHeight="237.0" prefWidth="415.0" style="-fx-border-color: black;">
+                        <Pane layoutX="641.0" layoutY="529.0" prefHeight="289.0" prefWidth="661.0" style="-fx-border-color: black;">
                            <children>
-                              <ListView fx:id="harvestDelayed" layoutX="3.0" layoutY="19.0" prefHeight="200.0" prefWidth="200.0" />
-                              <ListView fx:id="discardDelayed" layoutX="211.0" layoutY="19.0" prefHeight="200.0" prefWidth="200.0" />
+                              <ListView fx:id="harvestDelayed" layoutX="226.0" layoutY="31.0" prefHeight="200.0" prefWidth="200.0" />
+                              <ListView fx:id="discardDelayed" layoutX="443.0" layoutY="31.0" prefHeight="200.0" prefWidth="200.0" />
+                              <Label layoutX="241.0" layoutY="14.0" text="Delayed harvest notifications" />
+                              <Label layoutX="467.0" layoutY="14.0" text="Delayed discard notifications" />
+                              <Button fx:id="notifyButton" layoutX="14.0" layoutY="250.0" mnemonicParsing="false" onAction="#handleNotifyButton" text="Re-send notifications" />
+                              <ListView fx:id="plantDelayed" layoutX="14.0" layoutY="31.0" prefHeight="200.0" prefWidth="200.0" />
+                              <Label layoutX="43.0" layoutY="14.0" text="Delayed plant notifications" />
                            </children></Pane>
                      </children></AnchorPane>
             </content>

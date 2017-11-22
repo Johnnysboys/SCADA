@@ -10,33 +10,30 @@ package scada;
  * @author Jakob
  */
 public class Article {
-    
-    private int articleID;
+
+    private String articleID;
     private String name;
     private int prefTemp;
     private int prefWat;
-    
-    public Article(int id, String name, int prefT, int prefW){
+
+    public Article(String id, String name, int prefT, int prefW) {
         this.articleID = id;
         this.name = name;
         this.prefTemp = prefT;
         this.prefWat = prefW;
     }
-    
+
     @Override
-    public String toString(){
+    public String toString() {
         String display = this.name;
         return display;
     }
-    
-    
-    
 
-    public int getArticleID() {
+    public String getArticleID() {
         return articleID;
     }
 
-    public void setArticleID(int articleID) {
+    public void setArticleID(String articleID) {
         this.articleID = articleID;
     }
 
@@ -63,8 +60,5 @@ public class Article {
     public void setPrefWat(int prefWat) {
         this.prefWat = prefWat;
     }
-    
-    
-    
-    
+
 }

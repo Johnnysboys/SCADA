@@ -10,8 +10,12 @@ import PLCCommunication.PLCConnection;
 import PLCCommunication.UDPConnection;
 import RMIComms.*;
 import dto.OrderINFO;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,32 +25,63 @@ public class Scada_Controller {
 
     private OrderINFO currentOrder = null;
     private int maxCapacity = 0;
-
-    public int getMaxCapacity() {
-        return maxCapacity;
-    }
-
-    public void setMaxCapacity(int maxCapacity) {
-        this.maxCapacity = maxCapacity;
-    }
-
-    public int getCurrentCapacity() {
-        return currentCapacity;
-    }
-
-    public void setCurrentCapacity(int currentCapacity) {
-        this.currentCapacity = currentCapacity;
-    }
     private int currentCapacity = 0;
+    private String error = "";
 
     private FXMLDocumentController guiCon;
     private Client rmiClient;
-    
+
     private ArrayList<IDeployable> deployArray = new ArrayList<IDeployable>();
     private ArrayList<OrderINFO> orderArray = new ArrayList<OrderINFO>();
 
     private ArrayList<String> discardArray = new ArrayList<String>();
     private ArrayList<String> harvestArray = new ArrayList<String>();
+    private ArrayList<String> plantArray = new ArrayList<String>();
+
+    /**
+     * Fetches the maximum capacity of this Scada unit.
+     *
+     * @return
+     */
+    public int getMaxCapacity() {
+        return maxCapacity;
+    }
+
+    /**
+     * Sets the maximum capacity of this Scada unit.
+     *
+     * @param maxCapacity - The capacity to set as max for this Scada unit.
+     */
+    public void setMaxCapacity(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
+    }
+
+    /**
+     * Fetches the current capacity of this Scada unit.
+     *
+     * @return - Integer containing the current capacity of this Scada unit.
+     */
+    public int getCurrentCapacity() {
+        return currentCapacity;
+    }
+
+    /**
+     * Sets the current capacity of this Scada unit.
+     *
+     * @param currentCapacity - The capacity to set as currently available for
+     * this Scada unit.
+     */
+    public void setCurrentCapacity(int currentCapacity) {
+        this.currentCapacity = currentCapacity;
+    }
+
+    public void setError(String e) {
+        this.error = e;
+    }
+
+    public String getError() {
+        return error;
+    }
 
     /**
      * SCADA_Controller constructor.
@@ -55,10 +90,25 @@ public class Scada_Controller {
 
     }
 
+    /**
+     * Fetches the currently active order object. If no order is currently
+     * active, null is returned.
+     *
+     * @return OrderINFO object.
+     */
     public OrderINFO getCurrentOrder() {
         return currentOrder;
     }
 
+    public ArrayList<OrderINFO> getOrders() {
+        return this.orderArray;
+    }
+
+    /**
+     * Sets a specific order as the currently active order.
+     *
+     * @param currentOrder - The order to set as active.
+     */
     public void setCurrentOrder(OrderINFO currentOrder) {
         this.currentOrder = currentOrder;
     }
@@ -77,10 +127,19 @@ public class Scada_Controller {
      * updating the Greenhouse-array.
      */
     public void updateAll() {
-        for (IDeployable deploy : deployArray) {
-            deploy.update();
-        }
+        // Calls to the GUI to update displayed information.
         guiCon.updateTable(deployArray);
+        guiCon.updateDiscardDelay(discardArray);
+        guiCon.updateHarvestDelay(harvestArray);
+        guiCon.updatePlantDelay(plantArray);
+
+        Date date = new Date();
+        for (IDeployable deploy : deployArray) {
+            new Thread(() -> {
+                deploy.update(date);
+            }).start();
+        }
+
     }
 
     public void createConnector(String ip) throws RemoteException {
@@ -98,23 +157,28 @@ public class Scada_Controller {
      */
     public void addOrder(OrderINFO order) {
         orderArray.add(order);
-        guiCon.updateOrderView(orderArray);
-
     }
 
     /**
-     * WORK IN PROGRESS
+     * Registers a harvest from a deployable.
      *
-     * @param id - ID of edited deployable.
+     * @param id - ID of the deployable that is harvested from.
      * @throws java.rmi.RemoteException
      */
     public void harvest(int id) throws RemoteException {
         IDeployable deploy = this.deployArray.get(id);
         if (deploy.getStats()) {
             String orderNo = deploy.emptyArticle();
-
             try {
-                rmiClient.notifyHarvest(orderNo);
+                new Thread(() -> {
+                    try {
+                        rmiClient.notifyHarvest(orderNo);
+                    } catch (RemoteException ex) {
+                        System.out.println("No MES-Server connected - Harvest added to queue.");
+                        harvestArray.add(orderNo);
+                    }
+                }).start();
+                currentCapacity++;
 
             } catch (NullPointerException e) {
                 System.out.println("No MES-Server connected - Harvest added to queue.");
@@ -129,9 +193,9 @@ public class Scada_Controller {
     }
 
     /**
-     * WORK IN PROGRESS
+     * Registers a discard from a deployable.
      *
-     * @param id - ID of edited deployable.
+     * @param id - ID of the deployable that is discarded from.
      * @throws java.rmi.RemoteException
      */
     public void discard(int id) throws RemoteException {
@@ -139,7 +203,15 @@ public class Scada_Controller {
         if (deploy.getStats()) {
             String orderNo = deploy.emptyArticle();
             try {
-                rmiClient.notifyDiscard(orderNo);
+                new Thread(() -> {
+                    try {
+                        rmiClient.notifyDiscard(orderNo);
+                    } catch (RemoteException ex) {
+                        System.out.println("No MES-Server connected - Discard added to queue.");
+                        discardArray.add(orderNo);
+                    }
+                }).start();
+                currentCapacity++;
             } catch (NullPointerException e) {
                 System.out.println("No MES-Server connected - Discard added to queue.");
                 discardArray.add(orderNo);
@@ -151,7 +223,9 @@ public class Scada_Controller {
     }
 
     /**
-     * @param id - ID of edited deployable.
+     * Registers the planting of an article in a specific greenhouse.
+     *
+     * @param id - ID of the deployable to plant in.
      * @param art - The article to add to the deployable.
      * @throws java.rmi.RemoteException
      */
@@ -163,7 +237,8 @@ public class Scada_Controller {
         } else {
             if (!deploy.getStats()) {
                 try {
-                    rmiClient.notifyPlant(this.currentOrder.getOrderID());
+                    String orderNo = this.currentOrder.getOrderID();
+                    currentCapacity--;
                     deploy.deployArticle(art, this.currentOrder.getOrderID());
                     this.currentOrder.setQuantity(this.currentOrder.getQuantity() - 1);
                     // If the correct amount of articles have been deployed remove the order from the overview. 
@@ -171,7 +246,16 @@ public class Scada_Controller {
                         orderArray.remove(this.currentOrder);
                         this.currentOrder = null;
                     }
-                    guiCon.updateOrderView(orderArray);
+
+                    new Thread(() -> {
+                        try {
+                            rmiClient.notifyPlant(orderNo);
+                        } catch (RemoteException ex) {
+                            System.out.println("No MES-Server connected - Plant added to queue.");
+                            plantArray.add(orderNo);
+                        }
+
+                    }).start();
                 } catch (NullPointerException e) {
                     System.out.println("No MES-Server connected - Plant aborted.");
                 }
@@ -180,6 +264,29 @@ public class Scada_Controller {
                 System.out.println("Tried planting a non-idle deployable.");
             }
         }
+        guiCon.updateOrderView(orderArray);
+    }
+
+    /**
+     * Takes all delayed notifications and tries to re-send them to the MES-server.
+     * @throws RemoteException 
+     */
+    public void notifyDelayed() throws RemoteException {
+        for (String e : plantArray) {
+            rmiClient.notifyPlant(e);
+            plantArray.remove(e);
+        }
+        for (String e : harvestArray) {
+            rmiClient.notifyHarvest(e);
+            harvestArray.remove(e);
+        }
+        for (String e : discardArray) {
+            rmiClient.notifyDiscard(e);
+            discardArray.remove(e);
+        }
+        guiCon.updateDiscardDelay(plantArray);
+        guiCon.updateHarvestDelay(plantArray);
+        guiCon.updatePlantDelay(plantArray);
     }
 
     /**
@@ -199,6 +306,15 @@ public class Scada_Controller {
     }
 
     /**
+     * Returns the FXMLDocumentController attached to this Scada_Controller
+     *
+     * @return - FXMLDocumentController object attached to this Scada_Controller
+     */
+    public FXMLDocumentController getGUICon() {
+        return this.guiCon;
+    }
+
+    /**
      * Attaches the GUI-Controller to this object, so calls can be made to it.
      *
      * @param con - The controller to attach to the SCADA-object.
@@ -215,27 +331,4 @@ public class Scada_Controller {
     public ArrayList<IDeployable> getDeployList() {
         return this.deployArray;
     }
-
-    /**
-     * Changes the temperature set-point for a greenhouse.
-     *
-     * @param dNumber - The id of the deployable to change set-point for.
-     * @param newPoint - The value of the new set-point.
-     */
-//    public void changeSetPoint(String dNumber, int newPoint) {
-//        try {
-//            int deployNumber = Integer.parseInt(dNumber);
-//            deployNumber--;
-//            if (deployNumber > deployArray.size() && deployNumber >= 0) {
-//                System.out.println("Attempted to modify a too high deployable.");
-//            } else {
-//                deployArray.get(deployNumber).SetTemperature(newPoint);
-//            }
-//
-//        } catch (NumberFormatException e) {
-//            System.out.println("Deploy-number is not an Integer.");
-//        }
-//
-//    }
-
 }

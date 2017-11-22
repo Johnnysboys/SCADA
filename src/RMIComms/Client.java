@@ -11,19 +11,19 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import mes.IMESServer;
+import mes.RMI_Constants;
+import scada.ISCADAObserver;
 import scada.Scada_Controller;
 
 /**
  *
  * @author Jakob
  */
-public class Client extends UnicastRemoteObject implements IClient, Runnable {
+public class Client extends UnicastRemoteObject implements ISCADAObserver, Runnable {
 
     private String hostname;
-    private IServer server;
+    private IMESServer server;
     private Registry registry;
     private Scada_Controller scadCon;
 
@@ -32,21 +32,17 @@ public class Client extends UnicastRemoteObject implements IClient, Runnable {
         hostname = ip;
     }
 
-    @Override
-    public String getSpecificMessage() throws RemoteException {
-        return "My name is, HAH, MY NAME IS";
-    }
 
     public void notifyHarvest(String orderNo) throws RemoteException {
         server.alertHarvest(orderNo);
     }
 
     public void notifyDiscard(String orderNo) throws RemoteException {
-        server.alertDiscard(orderNo);
+        server.alertDiscarded(orderNo);
     }
     
     public void notifyPlant(String orderNo) throws RemoteException {
-        server.alertPlant(orderNo);
+        server.alertPlanted(orderNo);
     }
     
     public void setScadCon(Scada_Controller scad) {
@@ -55,35 +51,24 @@ public class Client extends UnicastRemoteObject implements IClient, Runnable {
 
     @Override
     public void run() {
-        //IServer server;
-        //Registry registry;
         try {
-            // Locate remote registry server
-            registry = LocateRegistry.getRegistry(hostname, RMICONFIG.PORT);
+            registry = LocateRegistry.getRegistry(hostname, RMI_Constants.MES_PORT);
             // Get proxy to remote object from the registry server
-            server = (IServer) registry.lookup(RMICONFIG.OBJECT);
+            server = (IMESServer) registry.lookup(RMI_Constants.MES_OBJECTNAME);
             server.addObserver(this);
-            //server.pingReady();
-        } catch (RemoteException | NotBoundException e) {
-            throw new Error("Error when communicating: " + e);
+            scadCon.setError("Succesfully Connected.");
+        } catch (Exception e) {
+            scadCon.setError("Error connecting to MES");
         }
-//        Scanner input = new Scanner(System.in);
-//        while (true) {
-//            System.out.println("enter somthing when server is ready");
-//            System.out.println("loop");
-//            input.nextLine();
-//            try {
-//                server.pingReady();
-//                this.notifyHarvest(hostname);
-//            } catch (RemoteException ex) {
-//                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
-
+    }
+    
+    @Override
+    public int getCapacity() throws RemoteException {
+        return scadCon.getCurrentCapacity();
     }
 
     @Override
-    public void sendOrder(OrderINFO order) throws RemoteException {
-        scadCon.addOrder(order);
+    public void postOrder(OrderINFO oinfo) throws RemoteException {
+        scadCon.addOrder(oinfo);
     }
 }

@@ -18,4 +18,6 @@ public interface IClient extends Remote {
     String getSpecificMessage() throws RemoteException;
 
     void sendOrder(OrderINFO order) throws RemoteException;
+    
+    int getCapacity() throws RemoteException;
 }
