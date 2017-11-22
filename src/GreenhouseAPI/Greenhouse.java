@@ -8,6 +8,7 @@ package GreenhouseAPI;
 import PLCCommunication.*;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Date;
 import scada.Article;
 import scada.IDeployable;
 
@@ -46,25 +47,30 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
     public void setIdle(String idle) {
         this.idle = idle;
     }
+    
+    @Override 
+    public String getDeployId(){
+        return this.ghNumber;
+    }
 
     @Override
     public void deployArticle(Article art, String orderNo) {
         this.currentArt = art;
         this.orderNo = orderNo;
-        this.SetTemperature(this.currentArt.getPrefTemp()+273);
+        this.SetTemperature(this.currentArt.getPrefTemp() + 273);
         this.ghWater = Integer.toString(this.currentArt.getPrefWat());
-        
+
         this.flipInUse();
 
     }
-    
+
     @Override
-    public String emptyArticle(){
+    public String emptyArticle() {
         String discardedOrder = this.orderNo;
         this.orderNo = null;
         this.currentArt = null;
         this.flipInUse();
-        
+
         return discardedOrder;
     }
 
@@ -92,17 +98,17 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
         return columnAttributeArray;
     }
 
-    @Override
-    public ArrayList<Article> getArticles() {
-        Article Salad = new Article(1, "Salad", 23, 500);
-        Article Cress = new Article(2, "Cress", 20, 500);
-        Article Potato = new Article(3, "Potato", 17, 400);
-        ArrayList<Article> articleArray = new ArrayList<Article>();
-        articleArray.add(Salad);
-        articleArray.add(Cress);
-        articleArray.add(Potato);
-        return articleArray;
-    }
+//    @Override
+//    public ArrayList<Article> getArticles() {
+//        Article Salad = new Article(1, "Salad", 23, 500);
+//        Article Cress = new Article(2, "Cress", 20, 500);
+//        Article Potato = new Article(3, "Potato", 17, 400);
+//        ArrayList<Article> articleArray = new ArrayList<Article>();
+//        articleArray.add(Salad);
+//        articleArray.add(Cress);
+//        articleArray.add(Potato);
+//        return articleArray;
+//    }
 
     @Override
     public void setDeployNumber(int i) {
@@ -167,7 +173,12 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
     }
 
     @Override
-    public void update() {
+    public void update(Date d) {
+        
+//        if(this.inUse = false){
+//            return;
+//        }
+        
         double temp = this.ReadTemp1();
         double wLevel = this.ReadWaterLevel();
 
@@ -180,9 +191,110 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
         if (wLevel < Double.parseDouble(this.ghWater)) {      // Set to needed waterlevel - Around 650 is base.
             this.AddWater(5); //Amount of seconds to pump water.
         }
+
+        int hourOfDay = d.getHours();
+        System.out.println(hourOfDay);
+        switch (hourOfDay) {
+            case 0:
+                this.SetBlueLight(0);
+                this.SetRedLight(0);
+                break;
+            case 1:
+                this.SetBlueLight(0);
+                this.SetRedLight(0);
+                break;
+            case 2:
+                this.SetBlueLight(0);
+                this.SetRedLight(0);
+                break;
+            case 3:
+                this.SetBlueLight(5);
+                this.SetRedLight(5);
+                break;
+            case 4:
+                this.SetBlueLight(15);
+                this.SetRedLight(15);
+                break;
+            case 5:
+                this.SetBlueLight(45);
+                this.SetRedLight(45);
+                break;
+            case 6:
+                this.SetBlueLight(70);
+                this.SetRedLight(70);
+                break;
+            case 7:
+                this.SetBlueLight(75);
+                this.SetRedLight(75);
+                break;
+            case 8:
+                this.SetBlueLight(80);
+                this.SetRedLight(80);
+                break;
+            case 9:
+                this.SetBlueLight(85);
+                this.SetRedLight(85);
+                break;
+            case 10:
+                this.SetBlueLight(90);
+                this.SetRedLight(90);
+                break;
+            case 11:
+                this.SetBlueLight(95);
+                this.SetRedLight(95);
+                break;
+            case 12:
+                this.SetBlueLight(100);
+                this.SetRedLight(100);
+                break;
+            case 13:
+                this.SetBlueLight(100);
+                this.SetRedLight(100);
+                break;
+            case 14:
+                this.SetBlueLight(95);
+                this.SetRedLight(95);
+                break;
+            case 15:
+                this.SetBlueLight(95);
+                this.SetRedLight(95);
+                break;
+            case 16:
+                this.SetBlueLight(85);
+                this.SetRedLight(85);
+                break;
+            case 17:
+                this.SetBlueLight(75);
+                this.SetRedLight(75);
+                break;
+            case 18:
+                this.SetBlueLight(65);
+                this.SetRedLight(65);
+                break;
+            case 19:
+                this.SetBlueLight(40);
+                this.SetRedLight(40);
+                break;
+            case 20:
+                this.SetBlueLight(20);
+                this.SetRedLight(20);
+                break;
+            case 21:
+                this.SetBlueLight(5);
+                this.SetRedLight(5);
+                break;
+            case 22:
+                this.SetBlueLight(0);
+                this.SetRedLight(0);
+                break;
+            case 23:
+                this.SetBlueLight(0);
+                this.SetRedLight(0);
+                break;
+        }
     }
-    
-        /**
+
+    /**
      * Flips the boolean that keeps track of whether or not the greenhouse is
      * occupied by a production.
      */
@@ -190,14 +302,11 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
         if (inUse) {
             inUse = false;
             idle = "Idle";
-            System.out.println("BOOOOOOOOOOP BAD IDLESTATUS");
         } else {
             inUse = true;
             idle = currentArt.getName();
-            System.out.println("WOOOOOOOP NEW IDLESTATUS");
         }
     }
-    
 
     @Override
     public boolean getStats() {
@@ -228,7 +337,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
             mess.setData(kelvin - 273);
             conn.addMessage(mess);
             System.out.println("WOOOOOOOOOOOOOOOOOOOOOH");
-            this.setGhSetTemp(Integer.toString(kelvin-273));
+            this.setGhSetTemp(Integer.toString(kelvin - 273));
             if (conn.send()) {
                 return true;
             } else {
@@ -286,6 +395,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      * @return true if processed
      */
     public boolean SetBlueLight(int level) {
+        System.out.println("Set red light to " + level);
         mess = new Message(BLUELIGHT_SETPOINT);
         if (level >= 0 && level <= 100) {
             mess.setData(level);
@@ -559,6 +669,5 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
         return false;
 
     }
-
 
 }

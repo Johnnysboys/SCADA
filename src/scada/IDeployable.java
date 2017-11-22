@@ -6,6 +6,7 @@
 package scada;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  *
@@ -15,8 +16,9 @@ public interface IDeployable {
 
     /**
      * The deployable unit does its update routine.
+     * @param d - The date Object for when the update happens.
      */
-    public void update();
+    public void update(Date d);
 
     /**
      * Tells the deployable object what number it is, usually told so by the
@@ -28,7 +30,7 @@ public interface IDeployable {
 
     /**
      * Returns the idle status of the deployable. True is occupied and false is idle. 
-     * @return 
+     * @return - A boolean value reflecting the occupation-status of the deployable.
      */
     public boolean getStats();
     
@@ -49,13 +51,14 @@ public interface IDeployable {
      *
      * @return ArrayList<Article>
      */
-    public ArrayList<Article> getArticles();
+    //public ArrayList<Article> getArticles();
     
     /**
      * Returns the specific article of the deployable. 
      * @return 
      */
     public Article getCurrentArt();
+    
     /**
      * Empties the deployable, and sets the status to idle. 
      * @return 
@@ -84,5 +87,7 @@ public interface IDeployable {
      * @return ArrayList<String>
      */
     public ArrayList<String> getColumnAttributes();
+    
+    public String getDeployId();
 
 }

@@ -34,7 +34,7 @@ public class SCADA extends Application {
         controller.setScadaCon(scadCon);
         scadCon.setGUICon(controller);
         
-        // Initiates Timer with a 1 minute recurring call. 
+        // Initiates Timer with a 10 second recurring call. 
         timer.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
@@ -42,6 +42,7 @@ public class SCADA extends Application {
                 scadCon.updateAll();
             }
         }, 0, 10, TimeUnit.SECONDS);
+        // UPDATE TIME-SCHEDULE 
 
         Scene scene = new Scene(root);
 
