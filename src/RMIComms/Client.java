@@ -58,6 +58,7 @@ public class Client extends UnicastRemoteObject implements ISCADAObserver, Runna
             server.addObserver(this);
             scadCon.setError("Succesfully Connected.");
         } catch (Exception e) {
+            e.printStackTrace();
             scadCon.setError("Error connecting to MES");
         }
     }
