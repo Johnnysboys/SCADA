@@ -20,16 +20,27 @@ import scada.Scada_Controller;
  *
  * @author Jakob
  */
-public class Client extends UnicastRemoteObject implements ISCADAObserver {
+public class Client extends UnicastRemoteObject implements ISCADAObserver, Runnable {
 
     private String hostname;
     private IMESServer server;
     private Registry registry;
     private Scada_Controller scadCon;
+    private int currentCapacity = 0;
 
-    public Client(String ip) throws RemoteException {
+    public Client(String ip, int capa) throws RemoteException {
         super();
         hostname = ip;
+        currentCapacity = capa;
+        System.out.println(currentCapacity);
+    }
+
+    public void increaseCapacity() {
+        this.currentCapacity++;
+    }
+
+    public void decreaseCapactiy() {
+        this.currentCapacity--;
     }
 
     public void connect() {
@@ -60,23 +71,25 @@ public class Client extends UnicastRemoteObject implements ISCADAObserver {
     public void setScadCon(Scada_Controller scad) {
         this.scadCon = scad;
     }
-//
-//    @Override
-//    public void run() {
-//        try {
-//            registry = LocateRegistry.getRegistry(hostname, RMI_Constants.MES_PORT);
-//            // Get proxy to remote object from the registry server
-//            server = (IMESServer) registry.lookup(RMI_Constants.MES_OBJECTNAME);
-//            server.addObserver(this);
-//            scadCon.setError("Succesfully Connected.");
-//        } catch (Exception e) {
-//            scadCon.setError("Error connecting to MES");
-//        }
-//    }
+
+    @Override
+    public void run() {
+        try {
+            registry = LocateRegistry.getRegistry(hostname, RMI_Constants.MES_PORT);
+            // Get proxy to remote object from the registry server
+            server = (IMESServer) registry.lookup(RMI_Constants.MES_OBJECTNAME);
+            server.addObserver(this);
+            scadCon.setError("Succesfully Connected.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            scadCon.setError("Error connecting to MES");
+        }
+    }
 
     @Override
     public int getCapacity() throws RemoteException {
-        return scadCon.getCurrentCapacity();
+        System.out.println(currentCapacity);
+        return currentCapacity;
     }
 
     @Override

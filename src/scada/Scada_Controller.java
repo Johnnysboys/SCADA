@@ -87,7 +87,6 @@ public class Scada_Controller {
      * SCADA_Controller constructor.
      */
     public Scada_Controller() {
-
     }
 
     /**
@@ -143,10 +142,8 @@ public class Scada_Controller {
     }
 
     public void createConnector(String ip) throws RemoteException {
-        rmiClient = new Client(ip);
-
-        //(new Thread(rmiClient)).start();
-        rmiClient.connect();
+        rmiClient = new Client(ip, this.currentCapacity);
+        (new Thread(rmiClient)).start();
         rmiClient.setScadCon(this);
     }
 
@@ -268,8 +265,10 @@ public class Scada_Controller {
     }
 
     /**
-     * Takes all delayed notifications and tries to re-send them to the MES-server.
-     * @throws RemoteException 
+     * Takes all delayed notifications and tries to re-send them to the
+     * MES-server.
+     *
+     * @throws RemoteException
      */
     public void notifyDelayed() throws RemoteException {
         for (String e : plantArray) {
