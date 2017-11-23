@@ -145,8 +145,8 @@ public class Scada_Controller {
     public void createConnector(String ip) throws RemoteException {
         rmiClient = new Client(ip);
 
-        (new Thread(rmiClient)).start();
-
+        //(new Thread(rmiClient)).start();
+        rmiClient.connect();
         rmiClient.setScadCon(this);
     }
 
