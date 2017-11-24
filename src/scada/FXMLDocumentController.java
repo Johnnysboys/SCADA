@@ -35,18 +35,15 @@ import javafx.stage.Stage;
  */
 public class FXMLDocumentController implements Initializable {
 
-    private Scada_Controller scadCon;
+    private IController scadCon;
 
-    private ObservableList<IDeployable> data;
+    private ObservableList<IDeployable> deployData;
     private ObservableList<OrderINFO> orderData;
-
-    private Stage eStage = new Stage();
-    private Label eLabel = new Label("Errorprinting");
 
     @FXML
     private Button loaderButton;
     @FXML
-    private TableView<IDeployable> displayTable;
+    private TableView<IDeployable> deployView;
     @FXML
     private Button plantButton;
     @FXML
@@ -89,47 +86,60 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void handlePlantButton(ActionEvent event) throws RemoteException {
         int id = numberDropDown.getSelectionModel().getSelectedItem();
-        Article art = Products.getArticle(scadCon.getCurrentOrder().getArticleNumber());
-        final Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        VBox dialogVbox = new VBox(25);
-        Label lbl = new Label("Planting in deployable " + id + "\n - Are you Sure?");
-        dialogVbox.getChildren().add(lbl);
 
-        Button btn1 = new Button();
-        btn1.setText("Yes");
-        btn1.setOnAction(
-                new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    scadCon.plant(id - 1, art);
-                    dialog.close();
-                } catch (RemoteException ex) {
-                    Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+        if (!scadCon.getDeployHandler().getDeployList().get(id - 1).getStatus()) {
+
+            // Creates confirmation window with two options
+            final Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            VBox dialogVbox = new VBox(25);
+            Label lbl = new Label("Planting in deployable " + id + "\n - Are you Sure?");
+            dialogVbox.getChildren().add(lbl);
+
+            // Option 1: "Yes"
+            Button btn1 = new Button();
+            btn1.setText("Yes");
+            btn1.setOnAction(
+                    new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        scadCon.getDeployHandler().plant(id - 1, scadCon.getOrderHandler().getCurrentOrder(), scadCon.getRmiClient());
+                        scadCon.getOrderHandler().decreaseCurrentOrder();
+
+                        if (scadCon.getOrderHandler().getCurrentOrder() == null) {
+                            typeLabel.setText("No order selected.");
+                            plantButton.setDisable(true);
+                        }
+
+                        scadCon.getRmiClient().decreaseCapactiy();
+                        dialog.close();
+                    } catch (RemoteException ex) {
+                        Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
-        }
-        );
-
-        Button btn2 = new Button();
-        btn2.setText("No");
-        btn2.setOnAction(
-                new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                plantButton.setDisable(false);
-                dialog.close();
+            );
+            // Option 2: "No"
+            Button btn2 = new Button();
+            btn2.setText("No");
+            btn2.setOnAction(
+                    new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    plantButton.setDisable(false);
+                    dialog.close();
+                }
             }
+            );
+            dialogVbox.getChildren().addAll(btn1, btn2);
+            Scene dialogScene = new Scene(dialogVbox, 200, 150);
+            dialogVbox.setMargin(btn1, new Insets(0, 0, 0, 10));
+            dialogVbox.setMargin(btn2, new Insets(0, 0, 0, 10));
+            dialogVbox.setMargin(lbl, new Insets(0, 0, 0, 10));
+            dialog.setScene(dialogScene);
+            dialog.show();
         }
-        );
-        dialogVbox.getChildren().addAll(btn1, btn2);
-        Scene dialogScene = new Scene(dialogVbox, 200, 150);
-        dialogVbox.setMargin(btn1, new Insets(0, 0, 0, 10));
-        dialogVbox.setMargin(btn2, new Insets(0, 0, 0, 10));
-        dialogVbox.setMargin(lbl, new Insets(0, 0, 0, 10));
-        dialog.setScene(dialogScene);
-        dialog.show();
     }
 
     /**
@@ -141,45 +151,48 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void handleHarvestButton(ActionEvent event) throws RemoteException {
         int id = numberDropDown.getSelectionModel().getSelectedItem();
-        final Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        VBox dialogVbox = new VBox(25);
-        Label lbl = new Label("Harvesting from deployable " + id + "\n - Are you Sure?");
-        dialogVbox.getChildren().add(lbl);
+        if (scadCon.getDeployHandler().getDeployList().get(id - 1).getStatus()) {
+            final Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            VBox dialogVbox = new VBox(25);
+            Label lbl = new Label("Harvesting from deployable " + id + "\n - Are you Sure?");
+            dialogVbox.getChildren().add(lbl);
 
-        Button btn1 = new Button();
-        btn1.setText("Yes");
-        btn1.setOnAction(
-                new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    scadCon.harvest(id - 1);
-                    dialog.close();
-                } catch (RemoteException ex) {
-                    Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+            Button btn1 = new Button();
+            btn1.setText("Yes");
+            btn1.setOnAction(
+                    new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        scadCon.getDeployHandler().harvest(id - 1, scadCon.getRmiClient());
+                        scadCon.getRmiClient().increaseCapacity();
+                        dialog.close();
+                    } catch (RemoteException ex) {
+                        Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
-        }
-        );
+            );
 
-        Button btn2 = new Button();
-        btn2.setText("No");
-        btn2.setOnAction(
-                new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                dialog.close();
+            Button btn2 = new Button();
+            btn2.setText("No");
+            btn2.setOnAction(
+                    new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    dialog.close();
+                }
             }
+            );
+            dialogVbox.getChildren().addAll(btn1, btn2);
+            Scene dialogScene = new Scene(dialogVbox, 200, 150);
+            dialogVbox.setMargin(btn1, new Insets(0, 0, 0, 10));
+            dialogVbox.setMargin(btn2, new Insets(0, 0, 0, 10));
+            dialogVbox.setMargin(lbl, new Insets(0, 0, 0, 10));
+            dialog.setScene(dialogScene);
+            dialog.show();
         }
-        );
-        dialogVbox.getChildren().addAll(btn1, btn2);
-        Scene dialogScene = new Scene(dialogVbox, 200, 150);
-        dialogVbox.setMargin(btn1, new Insets(0, 0, 0, 10));
-        dialogVbox.setMargin(btn2, new Insets(0, 0, 0, 10));
-        dialogVbox.setMargin(lbl, new Insets(0, 0, 0, 10));
-        dialog.setScene(dialogScene);
-        dialog.show();
     }
 
     /**
@@ -191,45 +204,48 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void handleDiscardButton(ActionEvent event) throws RemoteException {
         int id = numberDropDown.getSelectionModel().getSelectedItem();
-        final Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        VBox dialogVbox = new VBox(25);
-        Label lbl = new Label("Discarding from deployable " + id + "\n - Are you Sure?");
-        dialogVbox.getChildren().add(lbl);
+        if (scadCon.getDeployHandler().getDeployList().get(id - 1).getStatus()) {
+            final Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            VBox dialogVbox = new VBox(25);
+            Label lbl = new Label("Discarding from deployable " + id + "\n - Are you Sure?");
+            dialogVbox.getChildren().add(lbl);
 
-        Button btn1 = new Button();
-        btn1.setText("Yes");
-        btn1.setOnAction(
-                new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    scadCon.discard(id - 1);
-                    dialog.close();
-                } catch (RemoteException ex) {
-                    Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+            Button btn1 = new Button();
+            btn1.setText("Yes");
+            btn1.setOnAction(
+                    new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        scadCon.getDeployHandler().discard(id - 1, scadCon.getRmiClient());
+                        scadCon.getRmiClient().increaseCapacity();
+                        dialog.close();
+                    } catch (RemoteException ex) {
+                        Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
-        }
-        );
+            );
 
-        Button btn2 = new Button();
-        btn2.setText("No");
-        btn2.setOnAction(
-                new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                dialog.close();
+            Button btn2 = new Button();
+            btn2.setText("No");
+            btn2.setOnAction(
+                    new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    dialog.close();
+                }
             }
+            );
+            dialogVbox.getChildren().addAll(btn1, btn2);
+            Scene dialogScene = new Scene(dialogVbox, 200, 150);
+            dialogVbox.setMargin(btn1, new Insets(0, 0, 0, 10));
+            dialogVbox.setMargin(btn2, new Insets(0, 0, 0, 10));
+            dialogVbox.setMargin(lbl, new Insets(0, 0, 0, 10));
+            dialog.setScene(dialogScene);
+            dialog.show();
         }
-        );
-        dialogVbox.getChildren().addAll(btn1, btn2);
-        Scene dialogScene = new Scene(dialogVbox, 200, 150);
-        dialogVbox.setMargin(btn1, new Insets(0, 0, 0, 10));
-        dialogVbox.setMargin(btn2, new Insets(0, 0, 0, 10));
-        dialogVbox.setMargin(lbl, new Insets(0, 0, 0, 10));
-        dialog.setScene(dialogScene);
-        dialog.show();
     }
 
     @Override
@@ -262,16 +278,13 @@ public class FXMLDocumentController implements Initializable {
                         String ip = txtIP.getText();
                         try {
                             int iPort = Integer.parseInt(port);
-
-                            scadCon.addPortIp(iPort, ip);
+                            int size = scadCon.addDeployable(iPort, ip);
                             lbl.setText("Port " + iPort + " added at " + ip);
                             startButton.setDisable(false);
-                            int size = scadCon.getDeployList().size();
                             numberDropDown.getItems().clear();
                             for (int i = 0; i < size; i++) {
                                 numberDropDown.getItems().add(i + 1);
                             }
-                            scadCon.increaseCurrentCapacity();
                         } catch (NumberFormatException e) {
                             txtF.setText("Integers Only");
                         }
@@ -293,7 +306,7 @@ public class FXMLDocumentController implements Initializable {
             errorLabel.setText("");
             if (ip.length() > 0) {
                 try {
-                    scadCon.createConnector(ip);
+                    scadCon.createRMIClient(ip);
                 } catch (RemoteException ex) {
                     Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -313,10 +326,8 @@ public class FXMLDocumentController implements Initializable {
                     }
                 };
                 task.setOnSucceeded(taskFinishEvent -> {
-                    errorLabel.setText(scadCon.getError());
                     mesConnectButton.setText("Connected");
                     mesConnectButton.setDisable(false);
-                    this.updateOrderView(scadCon.getOrders());
                 });
                 new Thread(task).start();
             };
@@ -328,49 +339,20 @@ public class FXMLDocumentController implements Initializable {
      * Initiates the columns and factories for the IDeployable TableView with
      * columns corresponding to the implementing IDeployable class.
      */
-    public void initiateOverview() {
+    public void initiateDeployView() {
 
-        ArrayList<String> columnNames = scadCon.getDeployList().get(0).getColumnNames();
-        ArrayList<String> columnAttri = scadCon.getDeployList().get(0).getColumnAttributes();
+        ArrayList<String> columnNames = scadCon.getDeployHandler().getDeployList().get(0).getColumnNames();
+        ArrayList<String> columnAttri = scadCon.getDeployHandler().getDeployList().get(0).getColumnAttributes();
 
         for (int i = 0; i < columnNames.size(); i++) {
             TableColumn numberCol = new TableColumn(columnNames.get(i));
             numberCol.setCellValueFactory(new PropertyValueFactory<IDeployable, String>(columnAttri.get(i)));
             numberCol.setMinWidth(200);
-            displayTable.getColumns().add(numberCol);
+            deployView.getColumns().add(numberCol);
         }
 
-        data = FXCollections.observableArrayList(scadCon.getDeployList());
-        displayTable.setItems(data);
-    }
-
-    /**
-     * EventHandler for selecting the active order for other parts of the
-     * program.
-     */
-    @FXML
-    private void handleRowSelect() {
-        OrderINFO order = orderView.getSelectionModel().getSelectedItem();
-        if (order == null) {
-            orderLabel.setText("//");
-            scadCon.setCurrentOrder(null);
-            plantButton.setDisable(true);
-            typeLabel.setText("No order selected.");
-        } else {
-            orderLabel.setText(order.getOrderID());
-            scadCon.setCurrentOrder(order);
-            plantButton.setDisable(false);
-            typeLabel.setText(Products.getArticle(scadCon.getCurrentOrder().getArticleNumber()).getName());
-        }
-    }
-
-    /**
-     * EventHandler for selecting deployables from the tableview.
-     */
-    @FXML
-    private void handleDeploySelect() {
-        IDeployable ree = displayTable.getSelectionModel().getSelectedItem();
-        numberDropDown.getSelectionModel().select(Integer.parseInt(ree.getDeployId()) - 1);
+        deployData = FXCollections.observableArrayList(scadCon.getDeployHandler().getDeployList());
+        deployView.setItems(deployData);
     }
 
     /**
@@ -387,72 +369,63 @@ public class FXMLDocumentController implements Initializable {
         quantCol.setCellValueFactory(new PropertyValueFactory<OrderINFO, String>("quantity"));
 
         orderView.getColumns().addAll(orderNoCol, artCol, quantCol);
+        orderView.setItems(orderData);
     }
 
     /**
-     * Saves the Scada_Controller so the GUI can call methods on the controller.
-     *
-     * @param scad - The Scada_Controller to associate with the GUI-controller.
+     * Updates all GUI views.
      */
-    public void setScadaCon(Scada_Controller scad) {
-        this.scadCon = scad;
-    }
+    public void updateWindows() {
+        deployData = FXCollections.observableArrayList(scadCon.getDeployHandler().getDeployList());
+        deployView.setItems(deployData);
+        deployView.refresh();
 
-    /**
-     * Updates the IDeployable TableView with an up-to-date list of deployables.
-     *
-     * @param list - The list of deployables to show in the GUI.
-     */
-    public void updateTable(ArrayList<IDeployable> list) {
-        data = FXCollections.observableArrayList(list);
-        displayTable.setItems(data);
-        displayTable.refresh();
-    }
-
-    /**
-     * Updates the order TableView with a new list of orders.
-     *
-     * @param list - The list of orders to display on the GUI.
-     */
-    public void updateOrderView(ArrayList<OrderINFO> list) {
-        orderData = FXCollections.observableArrayList(list);
+        orderData = FXCollections.observableArrayList(scadCon.getOrderHandler().getOrderArray());
         orderView.setItems(orderData);
         orderView.refresh();
-        if (scadCon.getCurrentOrder() == null) {
-            plantButton.setDisable(true);
+
+        discardDelayed.setItems(FXCollections.observableArrayList(scadCon.getDeployHandler().getDiscardArray()));
+        harvestDelayed.setItems(FXCollections.observableArrayList(scadCon.getDeployHandler().getHarvestArray()));
+        plantDelayed.setItems(FXCollections.observableArrayList(scadCon.getDeployHandler().getPlantArray()));
+
+    }
+
+    /**
+     * EventHandler for selecting deployables from the tableview.
+     */
+    @FXML
+    private void handleDeploySelect() {
+        IDeployable ree = deployView.getSelectionModel().getSelectedItem();
+        numberDropDown.getSelectionModel().select(Integer.parseInt(ree.getDeployId()) - 1);
+    }
+
+    /**
+     * EventHandler for selecting the active order for other parts of the
+     * program.
+     */
+    @FXML
+    private void handleOrderSelect() {
+        OrderINFO order = orderView.getSelectionModel().getSelectedItem();
+        if (order == null) {
             orderLabel.setText("//");
+            scadCon.getOrderHandler().setCurrentOrder(null);
+            plantButton.setDisable(true);
             typeLabel.setText("No order selected.");
         } else {
+            orderLabel.setText(order.getOrderID());
+            scadCon.getOrderHandler().setCurrentOrder(order);
             plantButton.setDisable(false);
-            typeLabel.setText(Products.getArticle(scadCon.getCurrentOrder().getArticleNumber()).getName());
+            typeLabel.setText(Products.getArticle(scadCon.getOrderHandler().getCurrentOrder().getArticleNumber()).getName());
         }
     }
 
     /**
-     * Updates the ListView with delayed harvest notifications.
+     * Saves the IController so the GUI can call methods on the controller.
      *
-     * @param list - The list to display.
+     * @param scad - The IController to associate with the GUI-controller.
      */
-    public void updatePlantDelay(ArrayList<String> list) {
-        plantDelayed.setItems(FXCollections.observableArrayList(list));
-    }
-
-    /**
-     * Updates the ListView with delayed harvest notifications.
-     *
-     * @param list - The list to display.
-     */
-    public void updateHarvestDelay(ArrayList<String> list) {
-        harvestDelayed.setItems(FXCollections.observableArrayList(list));
-    }
-
-    /**
-     * Updates the ListView with delayed discard notifications.
-     *
-     * @param list - The list to display.
-     */
-    public void updateDiscardDelay(ArrayList<String> list) {
-        discardDelayed.setItems(FXCollections.observableArrayList(list));
+    public void setController(IController scad) {
+        this.scadCon = scad;
     }
 
     /**
@@ -463,7 +436,7 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void handleNotifyButton(ActionEvent event) throws RemoteException {
-        scadCon.notifyDelayed();
+        scadCon.getDeployHandler().notifyDelayed(scadCon.getRmiClient());
     }
 
     /**
@@ -475,13 +448,13 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void handleStartButton(ActionEvent event) {
-        int size = scadCon.getDeployList().size();
+        int size = scadCon.getDeployHandler().getDeployList().size();
         numberDropDown.getItems().clear();
         for (int i = 0; i < size; i++) {
             numberDropDown.getItems().add(i + 1);
         }
         numberDropDown.getSelectionModel().select(0);
-        this.initiateOverview();
+        this.initiateDeployView();
         startButton.setVisible(false);
     }
 

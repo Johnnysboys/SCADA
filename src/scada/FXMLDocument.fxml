@@ -16,7 +16,7 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <Button fx:id="loaderButton" layoutX="1207.0" layoutY="466.0" mnemonicParsing="false" text="Connect" />
-                        <TableView fx:id="displayTable" layoutX="14.0" layoutY="14.0" onMouseClicked="#handleDeploySelect" prefHeight="794.0" prefWidth="1067.0" />
+                        <TableView fx:id="deployView" layoutX="14.0" layoutY="14.0" onMouseClicked="#handleDeploySelect" prefHeight="794.0" prefWidth="1067.0" />
                         <Button fx:id="startButton" disable="true" layoutX="1207.0" layoutY="411.0" mnemonicParsing="false" onAction="#handleStartButton" text="Start" />
                         <Button fx:id="plantButton" layoutX="1227.0" layoutY="212.0" mnemonicParsing="false" onAction="#handlePlantButton" text="Plant" />
                         <ComboBox fx:id="numberDropDown" layoutX="1169.0" layoutY="179.0" prefHeight="25.0" prefWidth="103.0" promptText="Number" />
@@ -37,7 +37,7 @@
                               <Label fx:id="errorLabel" layoutX="14.0" layoutY="53.0" />
                            </children>
                         </Pane>
-                        <TableView fx:id="orderView" layoutX="14.0" layoutY="14.0" onMousePressed="#handleRowSelect" prefHeight="281.0" prefWidth="609.0" />
+                        <TableView fx:id="orderView" layoutX="14.0" layoutY="14.0" onMousePressed="#handleOrderSelect" prefHeight="281.0" prefWidth="609.0" />
                         <Label layoutX="630.0" layoutY="22.0" text="Active Order:" />
                         <Label fx:id="orderLabel" layoutX="705.0" layoutY="22.0" prefHeight="17.0" prefWidth="53.0" text="0.." />
                         <Pane layoutX="641.0" layoutY="529.0" prefHeight="289.0" prefWidth="661.0" style="-fx-border-color: black;">

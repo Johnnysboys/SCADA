@@ -1,16 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package RMIComms;
 
 import dto.OrderINFO;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.atomic.AtomicInteger;
 import mes.IMESServer;
 import mes.RMI_Constants;
 import scada.ISCADAObserver;
@@ -26,7 +21,7 @@ public class Client extends UnicastRemoteObject implements ISCADAObserver, Runna
     private IMESServer server;
     private Registry registry;
     private Scada_Controller scadCon;
-    private int currentCapacity = 0;
+    private AtomicInteger currentCapacity = new AtomicInteger();
 
     /**
      * Client constructor
@@ -35,7 +30,7 @@ public class Client extends UnicastRemoteObject implements ISCADAObserver, Runna
      * @param capa - The current capacity of this SCADA-unit.
      * @throws RemoteException
      */
-    public Client(String ip, int capa) throws RemoteException {
+    public Client(String ip, AtomicInteger capa) throws RemoteException {
         super();
         hostname = ip;
         currentCapacity = capa;
@@ -45,30 +40,14 @@ public class Client extends UnicastRemoteObject implements ISCADAObserver, Runna
      * Increases the observable capacity by one.
      */
     public void increaseCapacity() {
-        this.currentCapacity++;
+        currentCapacity.getAndIncrement();
     }
 
     /**
      * Decreases the observable capacity by one.
      */
     public void decreaseCapactiy() {
-        this.currentCapacity--;
-    }
-
-    /**
-     * Redundant method
-     */
-    public void connect() {
-        try {
-            registry = LocateRegistry.getRegistry(hostname, RMI_Constants.MES_PORT);
-            // Get proxy to remote object from the registry server
-            server = (IMESServer) registry.lookup(RMI_Constants.MES_OBJECTNAME);
-            server.addObserver(this);
-            scadCon.setError("Succesfully Connected.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            scadCon.setError("Error connecting to MES");
-        }
+        currentCapacity.getAndDecrement();
     }
 
     /**
@@ -113,6 +92,9 @@ public class Client extends UnicastRemoteObject implements ISCADAObserver, Runna
         this.scadCon = scad;
     }
 
+    /**
+     * Establishes a connection to the MES-server.
+     */
     @Override
     public void run() {
         try {
@@ -120,20 +102,18 @@ public class Client extends UnicastRemoteObject implements ISCADAObserver, Runna
             // Get proxy to remote object from the registry server
             server = (IMESServer) registry.lookup(RMI_Constants.MES_OBJECTNAME);
             server.addObserver(this);
-            scadCon.setError("Succesfully Connected.");
         } catch (Exception e) {
             e.printStackTrace();
-            scadCon.setError("Error connecting to MES");
         }
     }
 
     @Override
     public int getCapacity() throws RemoteException {
-        return currentCapacity;
+        return currentCapacity.get();
     }
 
     @Override
     public void postOrder(OrderINFO oinfo) throws RemoteException {
-        scadCon.addOrder(oinfo);
+        scadCon.getOrderHandler().addOrder(oinfo);
     }
 }

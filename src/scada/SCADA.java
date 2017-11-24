@@ -1,11 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package scada;
 
-import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,18 +25,17 @@ public class SCADA extends Application {
         FXMLDocumentController controller = loader.getController();
         Scada_Controller scadCon = new Scada_Controller();
 
-        controller.setScadaCon(scadCon);
+        controller.setController(scadCon);
         scadCon.setGUICon(controller);
         
-        // Initiates Timer with a 10 second recurring call. 
+        // Initiates Timer with a 2 second recurring call. 
         timer.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                System.out.println("Updated at: " + new Date());
-                scadCon.updateAll();
+                // Updates the GUI every 2 seconds. 
+                controller.updateWindows();
             }
-        }, 0, 10, TimeUnit.SECONDS);
-        // UPDATE TIME-SCHEDULE 
+        }, 0, 2, TimeUnit.SECONDS);
 
         Scene scene = new Scene(root);
 
@@ -50,9 +43,6 @@ public class SCADA extends Application {
         stage.show();
     }
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
         launch(args);
 

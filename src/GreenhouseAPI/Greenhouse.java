@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package GreenhouseAPI;
 
 import PLCCommunication.*;
@@ -98,18 +93,6 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
         return columnAttributeArray;
     }
 
-//    @Override
-//    public ArrayList<Article> getArticles() {
-//        Article Salad = new Article(1, "Salad", 23, 500);
-//        Article Cress = new Article(2, "Cress", 20, 500);
-//        Article Potato = new Article(3, "Potato", 17, 400);
-//        ArrayList<Article> articleArray = new ArrayList<Article>();
-//        articleArray.add(Salad);
-//        articleArray.add(Cress);
-//        articleArray.add(Potato);
-//        return articleArray;
-//    }
-
     @Override
     public void setDeployNumber(int i) {
         this.ghNumber = Integer.toString(i);
@@ -175,9 +158,9 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
     @Override
     public void update(Date d) {
         
-//        if(this.inUse = false){
-//            return;
-//        }
+        if(this.inUse = false){
+            return;
+        }
         
         double temp = this.ReadTemp1();
         double wLevel = this.ReadWaterLevel();
@@ -193,7 +176,6 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
         }
 
         int hourOfDay = d.getHours();
-        System.out.println(hourOfDay);
         switch (hourOfDay) {
             case 0:
                 this.SetBlueLight(0);
