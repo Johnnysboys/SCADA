@@ -32,7 +32,7 @@ public interface IDeployable {
      * Returns the idle status of the deployable. True is occupied and false is idle. 
      * @return - A boolean value reflecting the occupation-status of the deployable.
      */
-    public boolean getStats();
+    public boolean getStatus();
     
     /**
      * Specific to the Greenhouse-class. Has to be in the interface because
@@ -88,6 +88,10 @@ public interface IDeployable {
      */
     public ArrayList<String> getColumnAttributes();
     
+    /**
+     * Returns the ID of the deployable.
+     * @return - String containing the ID.
+     */
     public String getDeployId();
 
 }

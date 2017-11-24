@@ -1,19 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package scada;
 
 import dto.OrderINFO;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -104,6 +95,7 @@ public class FXMLDocumentController implements Initializable {
         VBox dialogVbox = new VBox(25);
         Label lbl = new Label("Planting in deployable " + id + "\n - Are you Sure?");
         dialogVbox.getChildren().add(lbl);
+
         Button btn1 = new Button();
         btn1.setText("Yes");
         btn1.setOnAction(
@@ -119,6 +111,7 @@ public class FXMLDocumentController implements Initializable {
             }
         }
         );
+
         Button btn2 = new Button();
         btn2.setText("No");
         btn2.setOnAction(
@@ -153,6 +146,7 @@ public class FXMLDocumentController implements Initializable {
         VBox dialogVbox = new VBox(25);
         Label lbl = new Label("Harvesting from deployable " + id + "\n - Are you Sure?");
         dialogVbox.getChildren().add(lbl);
+
         Button btn1 = new Button();
         btn1.setText("Yes");
         btn1.setOnAction(
@@ -168,6 +162,7 @@ public class FXMLDocumentController implements Initializable {
             }
         }
         );
+
         Button btn2 = new Button();
         btn2.setText("No");
         btn2.setOnAction(
@@ -201,6 +196,7 @@ public class FXMLDocumentController implements Initializable {
         VBox dialogVbox = new VBox(25);
         Label lbl = new Label("Discarding from deployable " + id + "\n - Are you Sure?");
         dialogVbox.getChildren().add(lbl);
+
         Button btn1 = new Button();
         btn1.setText("Yes");
         btn1.setOnAction(
@@ -216,6 +212,7 @@ public class FXMLDocumentController implements Initializable {
             }
         }
         );
+
         Button btn2 = new Button();
         btn2.setText("No");
         btn2.setOnAction(
@@ -274,9 +271,7 @@ public class FXMLDocumentController implements Initializable {
                             for (int i = 0; i < size; i++) {
                                 numberDropDown.getItems().add(i + 1);
                             }
-                            scadCon.setMaxCapacity(scadCon.getMaxCapacity() + 1);
-                            scadCon.setCurrentCapacity(scadCon.getCurrentCapacity() + 1);
-
+                            scadCon.increaseCurrentCapacity();
                         } catch (NumberFormatException e) {
                             txtF.setText("Integers Only");
                         }
@@ -433,12 +428,6 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    public void lostConnection() {
-        mesConnectButton.setDisable(false);
-        mesConnectButton.setText("Connect");
-        errorLabel.setText("Connection lost");
-    }
-
     /**
      * Updates the ListView with delayed harvest notifications.
      *
@@ -468,8 +457,9 @@ public class FXMLDocumentController implements Initializable {
 
     /**
      * Notifies the MES-server of all delayed notifications.
+     *
      * @param event
-     * @throws RemoteException 
+     * @throws RemoteException
      */
     @FXML
     private void handleNotifyButton(ActionEvent event) throws RemoteException {

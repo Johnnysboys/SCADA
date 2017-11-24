@@ -309,7 +309,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
     }
 
     @Override
-    public boolean getStats() {
+    public boolean getStatus() {
         return inUse;
     }
 
