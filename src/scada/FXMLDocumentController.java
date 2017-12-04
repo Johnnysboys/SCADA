@@ -78,6 +78,36 @@ public class FXMLDocumentController implements Initializable {
     private Button notifyButton;
 
     /**
+     * One-time method handling the start-button. Loads the correct types from
+     * the implemented IDeployable and instantiates the combo-boxes with the
+     * correct values. Should only be fired once per start-up.
+     *
+     * @param event
+     */
+    @FXML
+    private void handleStartButton(ActionEvent event) {
+        int size = scadCon.getDeployHandler().getDeployList().size();
+        numberDropDown.getItems().clear();
+        for (int i = 0; i < size; i++) {
+            numberDropDown.getItems().add(i + 1);
+        }
+        numberDropDown.getSelectionModel().select(0);
+        this.initiateDeployView();
+        startButton.setVisible(false);
+    }
+
+    /**
+     * Notifies the MES-server of all delayed notifications.
+     *
+     * @param event
+     * @throws RemoteException
+     */
+    @FXML
+    private void handleNotifyButton(ActionEvent event) throws RemoteException {
+        scadCon.getDeployHandler().notifyDelayed(scadCon.getRmiClient());
+    }
+
+    /**
      * EventHandler for the Plant-button.
      *
      * @param event - Fired when the user clicks the Plant-button.
@@ -248,6 +278,35 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
+    /**
+     * EventHandler for selecting deployables from the tableview.
+     */
+    @FXML
+    private void handleDeploySelect() {
+        IDeployable ree = deployView.getSelectionModel().getSelectedItem();
+        numberDropDown.getSelectionModel().select(Integer.parseInt(ree.getDeployId()) - 1);
+    }
+
+    /**
+     * EventHandler for selecting the active order for other parts of the
+     * program.
+     */
+    @FXML
+    private void handleOrderSelect() {
+        OrderINFO order = orderView.getSelectionModel().getSelectedItem();
+        if (order == null) {
+            orderLabel.setText("//");
+            scadCon.getOrderHandler().setCurrentOrder(null);
+            plantButton.setDisable(true);
+            typeLabel.setText("No order selected.");
+        } else {
+            orderLabel.setText(order.getOrderID());
+            scadCon.getOrderHandler().setCurrentOrder(order);
+            plantButton.setDisable(false);
+            typeLabel.setText(Products.getArticle(scadCon.getOrderHandler().getCurrentOrder().getArticleNumber()).getName());
+        }
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         this.initiateOrderView();
@@ -391,35 +450,6 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * EventHandler for selecting deployables from the tableview.
-     */
-    @FXML
-    private void handleDeploySelect() {
-        IDeployable ree = deployView.getSelectionModel().getSelectedItem();
-        numberDropDown.getSelectionModel().select(Integer.parseInt(ree.getDeployId()) - 1);
-    }
-
-    /**
-     * EventHandler for selecting the active order for other parts of the
-     * program.
-     */
-    @FXML
-    private void handleOrderSelect() {
-        OrderINFO order = orderView.getSelectionModel().getSelectedItem();
-        if (order == null) {
-            orderLabel.setText("//");
-            scadCon.getOrderHandler().setCurrentOrder(null);
-            plantButton.setDisable(true);
-            typeLabel.setText("No order selected.");
-        } else {
-            orderLabel.setText(order.getOrderID());
-            scadCon.getOrderHandler().setCurrentOrder(order);
-            plantButton.setDisable(false);
-            typeLabel.setText(Products.getArticle(scadCon.getOrderHandler().getCurrentOrder().getArticleNumber()).getName());
-        }
-    }
-
-    /**
      * Saves the IController so the GUI can call methods on the controller.
      *
      * @param scad - The IController to associate with the GUI-controller.
@@ -427,35 +457,4 @@ public class FXMLDocumentController implements Initializable {
     public void setController(IController scad) {
         this.scadCon = scad;
     }
-
-    /**
-     * Notifies the MES-server of all delayed notifications.
-     *
-     * @param event
-     * @throws RemoteException
-     */
-    @FXML
-    private void handleNotifyButton(ActionEvent event) throws RemoteException {
-        scadCon.getDeployHandler().notifyDelayed(scadCon.getRmiClient());
-    }
-
-    /**
-     * One-time method handling the start-button. Loads the correct types from
-     * the implemented IDeployable and instantiates the combo-boxes with the
-     * correct values. Should only be fired once per start-up.
-     *
-     * @param event
-     */
-    @FXML
-    private void handleStartButton(ActionEvent event) {
-        int size = scadCon.getDeployHandler().getDeployList().size();
-        numberDropDown.getItems().clear();
-        for (int i = 0; i < size; i++) {
-            numberDropDown.getItems().add(i + 1);
-        }
-        numberDropDown.getSelectionModel().select(0);
-        this.initiateDeployView();
-        startButton.setVisible(false);
-    }
-
 }

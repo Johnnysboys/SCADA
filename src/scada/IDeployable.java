@@ -61,7 +61,7 @@ public interface IDeployable {
     
     /**
      * Empties the deployable, and sets the status to idle. 
-     * @return 
+     * @return String containing the ordernumber the article was related to.
      */
     public String emptyArticle();
     

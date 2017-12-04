@@ -26,7 +26,6 @@ public class SCADA extends Application {
         Scada_Controller scadCon = new Scada_Controller();
 
         controller.setController(scadCon);
-        scadCon.setGUICon(controller);
         
         // Initiates Timer with a 2 second recurring call. 
         timer.scheduleWithFixedDelay(new Runnable() {

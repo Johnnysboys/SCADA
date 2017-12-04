@@ -335,6 +335,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      * @param moist in % ( 10 > M > 90 )
      * @return true if processed
      */
+    @Override
     public boolean SetMoisture(int moist) {
         mess = new Message(MOIST_SETPOINT);
         if (moist > 10 && moist < 90) {
@@ -355,6 +356,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      * @param level in percent
      * @return true if processed
      */
+    @Override
     public boolean SetRedLight(int level) {
         System.out.println("Set red light to " + level);
         mess = new Message(REDLIGHT_SETPOINT);
@@ -376,6 +378,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      * @param level in percent
      * @return true if processed
      */
+    @Override
     public boolean SetBlueLight(int level) {
         System.out.println("Set red light to " + level);
         mess = new Message(BLUELIGHT_SETPOINT);
@@ -398,6 +401,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      * @param sec : Second to turn on the pump {0 <= sec < 120}
      * @return true if processed
      */
+    @Override
     public boolean AddWater(int sec) {
         if (sec >= 0 && sec < 120) {
             mess = new Message(ADDWATER);
@@ -419,6 +423,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      * @param sec : Secord to turn on the pump
      * @return true if processed
      */
+    @Override
     public boolean AddFertiliser(int sec) {
         return true;
     }
@@ -430,6 +435,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      * @param sec : Secord to turn on the valve
      * @return true if processed
      */
+    @Override
     public boolean AddCO2(int sec) {
         return true;
     }
@@ -439,6 +445,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      *
      * @return Temperature in kelvin
      */
+    @Override
     public double ReadTemp1() {
         System.out.println("Read greenhouse temperatur ");
         mess = new Message(READ_GREENHOUSE_TEMP);
@@ -463,6 +470,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      *
      * @return Temperature in kelvin
      */
+    @Override
     public double ReadTemp2() {
         System.out.println("Read outdoor temperatur ");
         mess = new Message(READ_OUTDOOR_TEMP);
@@ -486,6 +494,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      *
      * @return Moisture in %
      */
+    @Override
     public double ReadMoist() {
         System.out.println("Read outdoor temperatur ");
         mess = new Message(READ_MOISTURE);
@@ -508,6 +517,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      *
      * @return Level in millimeter [0 < level < 250]
      */
+    @Override
     public double ReadWaterLevel() {
         System.out.println("Read water level ");
         mess = new Message(READ_WATER_LEVEL);
@@ -531,6 +541,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      *
      * @return Heights (cm?)
      */
+    @Override
     public double ReadPlantHeight() {
         System.out.println("Read height of plants");
         mess = new Message(READ_PLANT_HEIGHT);
@@ -553,6 +564,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      *
      * @return Alarms as BitSet
      */
+    @Override
     public BitSet ReadErrors() {
         System.out.println("Get all alarms ");
         mess = new Message(READ_ALL_ALARMS);
@@ -595,6 +607,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      * @param errorNum
      * @return Done
      */
+    @Override
     public boolean ResetError(int errorNum) {
         mess = new Message(RESET_ALARMS);
         errorNum--;
@@ -617,6 +630,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      *
      * @return All values
      */
+    @Override
     public byte[] GetStatus() {
         byte[] result = new byte[100];
         System.out.println("Get status ");
@@ -636,6 +650,7 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
      * @param speed : {OFF (0), LOW (1), HIGH(2)};
      * @return Done
      */
+    @Override
     public boolean SetFanSpeed(int speed) {
         System.out.println("Set fan speed " + speed);
         mess = new Message(SET_FAN_SPEED);

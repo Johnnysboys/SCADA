@@ -9,7 +9,6 @@ import java.rmi.RemoteException;
  */
 public class Scada_Controller implements IController {
 
-    private FXMLDocumentController guiCon;
     private Client rmiClient;
     private final DeployHandler deployHandler = new DeployHandler();
     private final OrderHandler orderHandler = new OrderHandler();
@@ -65,23 +64,5 @@ public class Scada_Controller implements IController {
             rmiClient.increaseCapacity();
         }
         return size;
-    }
-
-    /**
-     * Returns the FXMLDocumentController attached to this Scada_Controller
-     *
-     * @return - FXMLDocumentController object attached to this Scada_Controller
-     */
-    public FXMLDocumentController getGUICon() {
-        return this.guiCon;
-    }
-
-    /**
-     * Attaches the GUI-Controller to this object, so calls can be made to it.
-     *
-     * @param con - The controller to attach to the SCADA-object.
-     */
-    public void setGUICon(FXMLDocumentController con) {
-        this.guiCon = con;
     }
 }
