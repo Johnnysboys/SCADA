@@ -42,29 +42,34 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
     public void setIdle(String idle) {
         this.idle = idle;
     }
-    
-    @Override 
-    public String getDeployId(){
+
+    @Override
+    public String getDeployId() {
         return this.ghNumber;
     }
 
     @Override
     public void deployArticle(Article art, String orderNo) {
+
         this.currentArt = art;
         this.orderNo = orderNo;
         this.SetTemperature(this.currentArt.getPrefTemp() + 273);
         this.ghWater = Integer.toString(this.currentArt.getPrefWat());
-
-        this.flipInUse();
+        this.inUse = true;
+        System.out.println(inUse);
+        this.idle = currentArt.getName();
 
     }
 
     @Override
     public String emptyArticle() {
+
         String discardedOrder = this.orderNo;
         this.orderNo = null;
         this.currentArt = null;
-        this.flipInUse();
+        this.inUse = false;
+        System.out.println(inUse);
+        this.idle = "Idle";
 
         return discardedOrder;
     }
@@ -98,6 +103,11 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
         this.ghNumber = Integer.toString(i);
     }
 
+    @Override
+    public Article getCurrentArt() {
+        return currentArt;
+    }
+
     public PLCConnection getConn() {
         return conn;
     }
@@ -112,11 +122,6 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
 
     public void setMess(Message mess) {
         this.mess = mess;
-    }
-
-    @Override
-    public Article getCurrentArt() {
-        return currentArt;
     }
 
     public void setCurrentArt(Article currentArt) {
@@ -157,11 +162,11 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
 
     @Override
     public void update(Date d) {
-        
-        if(this.inUse = false){
+
+        if (this.inUse == false) {
             return;
         }
-        
+
         double temp = this.ReadTemp1();
         double wLevel = this.ReadWaterLevel();
 
@@ -276,20 +281,6 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
         }
     }
 
-    /**
-     * Flips the boolean that keeps track of whether or not the greenhouse is
-     * occupied by a production.
-     */
-    public void flipInUse() {
-        if (inUse) {
-            inUse = false;
-            idle = "Idle";
-        } else {
-            inUse = true;
-            idle = currentArt.getName();
-        }
-    }
-
     @Override
     public boolean getStatus() {
         return inUse;
@@ -318,7 +309,6 @@ public class Greenhouse implements IGreenhouse, ICommands, IDeployable {
             System.out.println("Set temperatur setpoint to " + kelvin);
             mess.setData(kelvin - 273);
             conn.addMessage(mess);
-            System.out.println("WOOOOOOOOOOOOOOOOOOOOOH");
             this.setGhSetTemp(Integer.toString(kelvin - 273));
             if (conn.send()) {
                 return true;
