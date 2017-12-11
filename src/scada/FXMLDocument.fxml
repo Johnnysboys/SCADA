@@ -11,13 +11,13 @@
    <children>
       <TabPane layoutX="6.0" layoutY="7.0" prefHeight="861.0" prefWidth="1316.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
-          <Tab text="GreenhouseWatch">
+          <Tab text="Overview">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Button fx:id="loaderButton" layoutX="1207.0" layoutY="466.0" mnemonicParsing="false" text="Connect" />
+                        <Button fx:id="loaderButton" layoutX="1090.0" layoutY="14.0" mnemonicParsing="false" text="Add PLC" />
                         <TableView fx:id="deployView" layoutX="14.0" layoutY="14.0" onMouseClicked="#handleDeploySelect" prefHeight="794.0" prefWidth="1067.0" />
-                        <Button fx:id="startButton" disable="true" layoutX="1207.0" layoutY="411.0" mnemonicParsing="false" onAction="#handleStartButton" text="Start" />
+                        <Button fx:id="startButton" disable="true" layoutX="1163.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleStartButton" text="Start" />
                         <Button fx:id="plantButton" layoutX="1227.0" layoutY="212.0" mnemonicParsing="false" onAction="#handlePlantButton" text="Plant" />
                         <ComboBox fx:id="numberDropDown" layoutX="1169.0" layoutY="179.0" prefHeight="25.0" prefWidth="103.0" promptText="Number" />
                         <Button fx:id="harvestButton" layoutX="1107.0" layoutY="212.0" mnemonicParsing="false" onAction="#handleHarvestButton" text="Harvest" />
@@ -26,7 +26,7 @@
                      </children></AnchorPane>
             </content>
           </Tab>
-          <Tab text="Options">
+          <Tab text="MES Connection">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
